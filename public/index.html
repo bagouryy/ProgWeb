@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Manager</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="module" src="js/main.js"></script>
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <span class="text-white font-bold">Recipe Manager</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <div id="nav-menu" class="ml-10 flex items-baseline space-x-4">
+                            <!-- Navigation items will be injected here -->
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center">
+                    <button id="language-toggle" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                        EN
+                    </button>
+                    <div class="ml-4 flex items-center">
+                        <span id="user-info" class="text-gray-300 text-sm mr-4"></span>
+                        <button id="logout" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Search and Filters -->
+        <div class="mb-8">
+            <div class="flex flex-col md:flex-row gap-4">
+                <input type="text" id="search-bar" 
+                       class="flex-1 p-2 border rounded" 
+                       placeholder="Search recipes...">
+                <div class="flex gap-4">
+                    <label class="flex items-center">
+                        <input type="checkbox" id="filter-gluten-free" class="mr-2">
+                        Gluten-Free
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="filter-vegan" class="mr-2">
+                        Vegan
+                    </label>
+                    <label class="flex items-center">
+                        <input type="checkbox" id="filter-published" class="mr-2">
+                        Published Only
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recipe Grid -->
+        <div id="recipe-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <!-- Recipe cards will be injected here -->
+        </div>
+    </main>
+</body>
+</html>

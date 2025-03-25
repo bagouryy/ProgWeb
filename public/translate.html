@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recipe Translation</title>
+    <script src="js/translate.js" defer></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto p-6">
+        <!-- Auth Error Message -->
+        <div id="auth-error" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
+            You must be logged in as a Translator to access this page.
+        </div>
+
+        <!-- Main Content -->
+        <div id="translation-interface" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
+            <div class="flex justify-between items-center mb-6">
+                <h1 class="text-2xl font-bold">Recipe Translation</h1>
+                <div class="flex items-center gap-4">
+                    <button id="language-toggle" class="px-4 py-2 bg-blue-500 text-white rounded">FR</button>
+                    <select id="recipe-selector" class="px-4 py-2 border rounded">
+                        <option value="">Select a recipe...</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Translation Grid -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Original Content -->
+                <div class="space-y-6">
+                    <h2 class="text-xl font-semibold border-b pb-2">Original Content</h2>
+                    
+                    <!-- Original Title -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Title</label>
+                        <div id="original-title" class="p-2 bg-gray-50 rounded border"></div>
+                    </div>
+
+                    <!-- Original Ingredients -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Ingredients</label>
+                        <div id="original-ingredients" class="space-y-2">
+                            <!-- Ingredients will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Original Steps -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Steps</label>
+                        <div id="original-steps" class="space-y-2">
+                            <!-- Steps will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Translation Form -->
+                <div class="space-y-6">
+                    <h2 class="text-xl font-semibold border-b pb-2">Translation</h2>
+                    
+                    <!-- Translated Title -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Title</label>
+                        <input type="text" id="translated-title" 
+                               class="w-full p-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+
+                    <!-- Translated Ingredients -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Ingredients</label>
+                        <div id="translated-ingredients" class="space-y-2">
+                            <!-- Ingredient inputs will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Translated Steps -->
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2">Steps</label>
+                        <div id="translated-steps" class="space-y-2">
+                            <!-- Step inputs will be inserted here -->
+                        </div>
+                    </div>
+
+                    <!-- Validation Message -->
+                    <div id="validation-message" class="hidden bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded relative"></div>
+
+                    <!-- Submit Button -->
+                    <button id="submit-translation" 
+                            class="w-full bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                        Save Translation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

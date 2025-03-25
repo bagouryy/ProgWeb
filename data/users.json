@@ -1,0 +1,20 @@
+[
+  {
+    "username": "admin",
+    "password": "admin123",
+    "roles": ["Admin", "Chef", "Traducteur"],
+    "requestedRole": null
+  },
+  {
+    "username": "chefjoe",
+    "password": "joepass",
+    "roles": ["Chef"],
+    "requestedRole": null
+  },
+  {
+    "username": "translatorjane",
+    "password": "janepass",
+    "roles": ["Traducteur"],
+    "requestedRole": null
+  }
+]
