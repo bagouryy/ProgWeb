@@ -5,83 +5,114 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Recipe Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            700: '#0369a1',
+                            800: '#075985'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
     <script type="module" src="js/auth.js"></script>
 </head>
-<body class="bg-gray-100 h-screen flex items-center justify-center">
+<body class="bg-gradient-to-br from-primary-50 to-primary-100 h-screen flex items-center justify-center">
     <div class="max-w-md w-full mx-4">
-        <div class="text-center mb-8">
-            <h1 class="text-3xl font-bold">Recipe Manager</h1>
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-bold text-primary-800 mb-2">Recipe Manager</h1>
             <p class="text-gray-600">Log in or create an account</p>
         </div>
 
+        <!-- Message Display -->
+        <div id="message" class="hidden mb-6 p-4 rounded-lg text-center"></div>
+
         <!-- Tab Navigation -->
-        <div class="flex mb-4">
-            <button id="login-tab" class="flex-1 py-2 px-4 bg-blue-500 text-white rounded-tl">Login</button>
-            <button id="register-tab" class="flex-1 py-2 px-4 bg-gray-200 rounded-tr">Register</button>
+        <div class="bg-white rounded-t-xl overflow-hidden">
+            <div class="flex">
+                <button id="login-tab" class="flex-1 py-4 text-lg font-medium transition-colors duration-200 bg-primary-500 text-white">
+                    Login
+                </button>
+                <button id="register-tab" class="flex-1 py-4 text-lg font-medium transition-colors duration-200 bg-gray-100 text-gray-700 hover:bg-gray-200">
+                    Register
+                </button>
+            </div>
         </div>
 
-        <!-- Message Display -->
-        <div id="message" class="hidden mb-4 p-4 rounded"></div>
-
         <!-- Login Form -->
-        <form id="login-form" class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="login-username">
+        <form id="login-form" class="bg-white rounded-b-xl px-8 pt-6 pb-8 mb-4 shadow-card">
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-semibold mb-2" for="login-username">
                     Username
                 </label>
-                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                       id="login-username" type="text" required>
+                <input class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200" 
+                       id="login-username" type="text" required
+                       placeholder="Enter your username">
             </div>
-            <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="login-password">
+            <div class="mb-8">
+                <label class="block text-gray-700 text-sm font-semibold mb-2" for="login-password">
                     Password
                 </label>
-                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" 
-                       id="login-password" type="password" required>
+                <input class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200" 
+                       id="login-password" type="password" required
+                       placeholder="Enter your password">
             </div>
-            <div class="flex items-center justify-between">
-                <button id="login-submit" type="button"
-                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            <div>
+                <button id="login-submit" type="submit"
+                        class="w-full bg-primary-600 hover:bg-primary-500 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200">
                     Sign In
                 </button>
             </div>
         </form>
 
         <!-- Register Form -->
-        <form id="register-form" class="hidden bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="register-username">
-                    Username
+        <form id="register-form" class="hidden bg-white rounded-b-xl px-8 pt-6 pb-8 mb-4 shadow-card">
+            <div class="mb-6">
+                <label class="block text-gray-700 text-sm font-semibold mb-2" for="register-username">
+                    Choose Username
                 </label>
-                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                       id="register-username" type="text" required>
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 text-sm font-bold mb-2" for="register-password">
-                    Password
-                </label>
-                <input class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" 
-                       id="register-password" type="password" required>
+                <input class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200" 
+                       id="register-username" type="text" required
+                       placeholder="Choose a username">
             </div>
             <div class="mb-6">
-                <label class="block text-gray-700 text-sm font-bold mb-2">
+                <label class="block text-gray-700 text-sm font-semibold mb-2" for="register-password">
+                    Choose Password
+                </label>
+                <input class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200" 
+                       id="register-password" type="password" required
+                       placeholder="Choose a password">
+            </div>
+            <div class="mb-8">
+                <label class="block text-gray-700 text-sm font-semibold mb-3">
                     Request Role
                 </label>
-                <div class="flex gap-4">
-                    <label class="flex items-center">
-                        <input type="checkbox" id="role-chef" class="mr-2">
-                        Chef
+                <div class="flex gap-6">
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <input type="checkbox" id="role-chef"
+                               class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 transition-colors duration-200">
+                        <span class="text-gray-700 group-hover:text-primary-600 transition-colors duration-200">Chef</span>
                     </label>
-                    <label class="flex items-center">
-                        <input type="checkbox" id="role-translator" class="mr-2">
-                        Translator
+                    <label class="flex items-center gap-3 cursor-pointer group">
+                        <input type="checkbox" id="role-translator"
+                               class="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500 transition-colors duration-200">
+                        <span class="text-gray-700 group-hover:text-primary-600 transition-colors duration-200">Translator</span>
                     </label>
                 </div>
             </div>
-            <div class="flex items-center justify-between">
-                <button id="register-submit" type="button"
-                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Register
+            <div>
+                <button id="register-submit" type="submit"
+                        class="w-full bg-primary-600 hover:bg-primary-500 text-white font-bold py-3 px-4 rounded-lg transition-colors duration-200">
+                    Create Account
                 </button>
             </div>
         </form>

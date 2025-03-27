@@ -1,70 +1,77 @@
 import userService from './userService.js';
 
 document.addEventListener('DOMContentLoaded', () => {
-    const loginTab = document.getElementById('login-tab');
-    const registerTab = document.getElementById('register-tab');
     const loginForm = document.getElementById('login-form');
     const registerForm = document.getElementById('register-form');
-    const loginSubmit = document.getElementById('login-submit');
-    const registerSubmit = document.getElementById('register-submit');
+    const loginTab = document.getElementById('login-tab');
+    const registerTab = document.getElementById('register-tab');
     const messageDiv = document.getElementById('message');
 
     const showMessage = (message, isError = true) => {
         messageDiv.textContent = message;
-        messageDiv.classList.toggle('text-red-500', isError);
-        messageDiv.classList.toggle('text-green-500', !isError);
-        messageDiv.classList.remove('hidden');
+        messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+        messageDiv.classList.add(
+            isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700',
+            'rounded-lg', 'p-4'
+        );
         setTimeout(() => messageDiv.classList.add('hidden'), 3000);
     };
 
-    const handleLogin = async () => {
+    const switchTab = (showLogin = true) => {
+        loginTab.classList.toggle('bg-primary-500', showLogin);
+        loginTab.classList.toggle('text-white', showLogin);
+        loginTab.classList.toggle('bg-gray-100', !showLogin);
+        loginTab.classList.toggle('text-gray-700', !showLogin);
+
+        registerTab.classList.toggle('bg-primary-500', !showLogin);
+        registerTab.classList.toggle('text-white', !showLogin);
+        registerTab.classList.toggle('bg-gray-100', showLogin);
+        registerTab.classList.toggle('text-gray-700', showLogin);
+
+        loginForm.classList.toggle('hidden', !showLogin);
+        registerForm.classList.toggle('hidden', showLogin);
+    };
+
+    // Handle login form submission
+    loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
         const username = document.getElementById('login-username').value;
         const password = document.getElementById('login-password').value;
 
         try {
-            const isValid = await userService.validateLogin(username, password);
-            if (isValid) {
-                showMessage('Login successful!', false);
-                setTimeout(() => window.location.href = 'index.html', 1000);
+            const success = await userService.validateLogin(username, password);
+            if (success) {
+                window.location.href = 'index.html';
             } else {
-                showMessage('Invalid username or password.');
+                showMessage('Invalid username or password');
             }
         } catch (error) {
             showMessage(error.message);
         }
-    };
+    });
 
-    const handleRegister = async () => {
+    // Handle registration form submission
+    registerForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
         const username = document.getElementById('register-username').value;
         const password = document.getElementById('register-password').value;
         const roleChef = document.getElementById('role-chef').checked;
         const roleTranslator = document.getElementById('role-translator').checked;
 
-        try {
-            const requestedRoles = [];
-            if (roleChef) requestedRoles.push('DemandeChef');
-            if (roleTranslator) requestedRoles.push('DemandeTraducteur');
+        const requestedRoles = [];
+        if (roleChef) requestedRoles.push('Chef');
+        if (roleTranslator) requestedRoles.push('Traducteur');
 
+        try {
             await userService.registerUser(username, password, requestedRoles);
-            showMessage('Registration successful!', false);
-            setTimeout(() => {
-                loginTab.click();
-            }, 1500);
+            showMessage('Registration successful! Please log in.', false);
+            switchTab(true); // Switch to login tab
         } catch (error) {
             showMessage(error.message);
         }
-    };
-
-    loginTab.addEventListener('click', () => {
-        loginForm.classList.remove('hidden');
-        registerForm.classList.add('hidden');
     });
 
-    registerTab.addEventListener('click', () => {
-        registerForm.classList.remove('hidden');
-        loginForm.classList.add('hidden');
-    });
-
-    loginSubmit.addEventListener('click', handleLogin);
-    registerSubmit.addEventListener('click', handleRegister);
+    // Tab switching
+    loginTab.addEventListener('click', () => switchTab(true));
+    registerTab.addEventListener('click', () => switchTab(false));
 });

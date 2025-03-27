@@ -3,18 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>View Recipe - Recipe Manager</title>
+    <title>Recipe Details - Recipe Manager</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module" src="js/recipe.js"></script>
+    <style>
+        .aspect-w-16 {
+            position: relative;
+            padding-bottom: 56.25%;
+        }
+        .aspect-w-16 > * {
+            position: absolute;
+            height: 100%;
+            width: 100%;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+    <!-- Message Display -->
+    <div id="message" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-lg z-50"></div>
+
     <!-- Navigation -->
-    <nav class="bg-gray-800">
+    <nav class="bg-gradient-to-r from-primary-600 to-primary-700 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
+            <div class="flex items-center justify-between h-20">
                 <div class="flex items-center">
                     <div class="flex-shrink-0">
-                        <a href="index.html" class="text-white font-bold">Recipe Manager</a>
+                        <a href="index.html" class="text-white text-2xl font-bold tracking-tight">Recipe Manager</a>
                     </div>
                     <div class="hidden md:block">
                         <div id="nav-menu" class="ml-10 flex items-baseline space-x-4">
@@ -22,13 +40,15 @@
                         </div>
                     </div>
                 </div>
-                <div class="flex items-center">
-                    <button id="language-toggle" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                <div class="flex items-center gap-6">
+                    <button id="language-toggle" 
+                            class="bg-primary-500 hover:bg-primary-400 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm">
                         EN
                     </button>
-                    <div class="ml-4 flex items-center">
-                        <span id="user-info" class="text-gray-300 text-sm mr-4"></span>
-                        <button id="logout" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">
+                    <div class="flex items-center gap-4">
+                        <span id="user-info" class="text-white text-sm"></span>
+                        <button id="logout" 
+                                class="bg-primary-800 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm">
                             Logout
                         </button>
                     </div>
@@ -37,56 +57,22 @@
         </div>
     </nav>
 
-    <!-- Main Content -->
-    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-        <!-- Recipe Container -->
-        <div id="recipe-container" class="bg-white shadow-lg rounded-lg p-6">
-            <!-- Recipe content will be injected here -->
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="mt-6 flex gap-4">
-            <button id="edit-recipe" class="hidden bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+        <!-- Recipe Actions -->
+        <div class="flex justify-end gap-4 mb-6">
+            <button id="edit-recipe" 
+                    class="hidden bg-primary-600 hover:bg-primary-500 text-white px-6 py-2 rounded-lg transition-colors duration-200">
                 Edit Recipe
             </button>
-            <button id="delete-recipe" class="hidden bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+            <button id="delete-recipe" 
+                    class="hidden bg-red-600 hover:bg-red-500 text-white px-6 py-2 rounded-lg transition-colors duration-200">
                 Delete Recipe
-            </button>
-            <button id="publish-recipe" class="hidden bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded">
-                Publish Recipe
             </button>
         </div>
 
-        <!-- Comments Section -->
-        <div class="mt-8">
-            <h2 class="text-2xl font-bold mb-4">Comments</h2>
-            <form id="comment-form" class="mb-6">
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="comment-text">
-                        Your Comment
-                    </label>
-                    <textarea id="comment-text" 
-                              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                              rows="3"
-                              required></textarea>
-                </div>
-                <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2" for="comment-image">
-                        Add Image (optional)
-                    </label>
-                    <input type="file" 
-                           id="comment-image" 
-                           accept="image/*"
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
-                </div>
-                <button type="submit" 
-                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                    Post Comment
-                </button>
-            </form>
-            <div id="comments-list">
-                <!-- Comments will be injected here -->
-            </div>
+        <!-- Recipe Content -->
+        <div id="recipe-container" class="animate-fade-in">
+            <!-- Recipe content will be injected here -->
         </div>
     </main>
 </body>

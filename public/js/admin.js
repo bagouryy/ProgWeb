@@ -2,264 +2,210 @@ import userService from './userService.js';
 import recipeService from './recipeService.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
-    const adminInterface = document.getElementById('admin-interface');
     const authError = document.getElementById('auth-error');
-    const pendingRequestsContainer = document.getElementById('pending-requests');
-    const userManagementContainer = document.getElementById('user-management');
+    const adminInterface = document.getElementById('admin-interface');
     const usersTab = document.getElementById('users-tab');
     const recipesTab = document.getElementById('recipes-tab');
     const usersManagement = document.getElementById('users-management');
     const recipeValidation = document.getElementById('recipe-validation');
-    const languageToggle = document.getElementById('language-toggle');
-    const usersTable = document.getElementById('users-table');
+    const pendingRequests = document.getElementById('pending-requests');
+    const userManagement = document.getElementById('user-management');
     const recipesList = document.getElementById('recipes-list');
+    const messageDiv = document.getElementById('message');
+    const languageToggle = document.getElementById('language-toggle');
 
     let language = localStorage.getItem('language') || 'en';
 
-    const toggleLanguage = () => {
-        language = language === 'en' ? 'fr' : 'en';
-        localStorage.setItem('language', language);
-        languageToggle.textContent = language === 'en' ? 'FR' : 'EN';
-        loadUsers();
-        loadRecipes();
-    };
-
-    const loadUsers = async () => {
-        try {
-            const response = await fetch('../data/users.json');
-            const users = await response.json();
-            renderUsers(users);
-        } catch (error) {
-            console.error('Error loading users:', error);
-        }
-    };
-
-    const renderUsers = (users) => {
-        usersTable.innerHTML = users.map(user => `
-            <tr>
-                <td class="border border-gray-300 px-4 py-2">${user.username}</td>
-                <td class="border border-gray-300 px-4 py-2">${user.roles.join(', ')}</td>
-                <td class="border border-gray-300 px-4 py-2">${user.requestedRole || 'None'}</td>
-                <td class="border border-gray-300 px-4 py-2">
-                    <button class="px-2 py-1 bg-green-500 text-white rounded">Promote</button>
-                </td>
-            </tr>
-        `).join('');
-    };
-
-    const loadRecipes = async () => {
-        try {
-            const recipes = await recipeService.getAllRecipes();
-            const unpublishedRecipes = recipes.filter(recipe => !recipe.published);
-            renderRecipes(unpublishedRecipes);
-        } catch (error) {
-            console.error('Error loading recipes:', error);
-            showMessage('Error loading recipes', true);
-        }
-    };
-
-    const renderRecipes = (recipes) => {
-        recipesList.innerHTML = recipes.map(recipe => {
-            const name = language === 'en' ? recipe.name : recipe.nameFR;
-            return `
-                <div class="p-4 border rounded mb-4">
-                    <h3 class="text-lg font-bold">${name || 'Untitled Recipe'}</h3>
-                    <p>Author: ${recipe.author || 'Unknown'}</p>
-                    <p>Status: ${recipe.published ? 'Published' : 'Unpublished'}</p>
-                    <div class="flex gap-2 mt-2">
-                        <button class="publish-recipe px-2 py-1 bg-green-500 text-white rounded" data-id="${recipe.id}">
-                            ${recipe.published ? 'Unpublish' : 'Publish'}
-                        </button>
-                        <button class="edit-recipe px-2 py-1 bg-blue-500 text-white rounded" data-id="${recipe.id}">
-                            Edit
-                        </button>
-                        <button class="delete-recipe px-2 py-1 bg-red-500 text-white rounded" data-id="${recipe.id}">
-                            Delete
-                        </button>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        // Add event listeners for recipe actions
-        recipesList.addEventListener('click', async (e) => {
-            const recipeId = e.target.dataset.id;
-            if (!recipeId) return;
-
-            if (e.target.classList.contains('publish-recipe')) {
-                try {
-                    const recipe = await recipeService.getRecipeById(recipeId);
-                    await recipeService.updateRecipeStatus(recipeId, !recipe.published);
-                    loadRecipes();
-                    showMessage(`Recipe ${recipe.published ? 'unpublished' : 'published'} successfully`, false);
-                } catch (error) {
-                    showMessage('Error updating recipe status: ' + error.message);
-                }
-            } else if (e.target.classList.contains('edit-recipe')) {
-                window.location.href = `recipe.html?id=${recipeId}`;
-            } else if (e.target.classList.contains('delete-recipe')) {
-                if (confirm('Are you sure you want to delete this recipe?')) {
-                    try {
-                        await recipeService.deleteRecipe(recipeId);
-                        loadRecipes();
-                        showMessage('Recipe deleted successfully', false);
-                    } catch (error) {
-                        showMessage('Error deleting recipe: ' + error.message);
-                    }
-                }
-            }
-        });
-    };
-
-    usersTab.addEventListener('click', () => {
-        usersManagement.classList.remove('hidden');
-        recipeValidation.classList.add('hidden');
-    });
-
-    recipesTab.addEventListener('click', () => {
-        recipeValidation.classList.remove('hidden');
-        usersManagement.classList.add('hidden');
-    });
-
-    languageToggle.addEventListener('click', toggleLanguage);
-
-    loadUsers();
-    loadRecipes();
-
     // Check admin access
-    function checkAdminAccess() {
-        const user = userService.getLoggedInUser();
-        if (!user || !userService.isAdmin(user.username)) {
-            authError.classList.remove('hidden');
-            adminInterface.classList.add('hidden');
-            return false;
-        }
-        return true;
+    const user = userService.getLoggedInUser();
+    if (!user || !user.roles.includes('Admin')) {
+        authError.classList.remove('hidden');
+        adminInterface.classList.add('hidden');
+        return;
     }
 
-    // Display pending role requests
-    async function displayPendingRequests() {
-        const users = await userService.loadUsers();
-        const pendingUsers = users.filter(user => user.requestedRole);
+    const showMessage = (message, isError = true) => {
+        messageDiv.textContent = message;
+        messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+        messageDiv.classList.add(
+            isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700',
+            'animate-fade-in'
+        );
+        setTimeout(() => messageDiv.classList.add('hidden'), 3000);
+    };
 
-        pendingRequestsContainer.innerHTML = pendingUsers.length === 0 
-            ? '<p class="text-gray-500">No pending requests</p>'
-            : pendingUsers.map(user => `
-                <div class="bg-white p-4 rounded-lg shadow mb-4">
-                    <div class="flex justify-between items-center">
-                        <div>
-                            <h3 class="font-bold">${user.username}</h3>
-                            <p class="text-sm text-gray-600">Requested: ${user.requestedRole.join(', ')}</p>
-                        </div>
-                        <div class="space-x-2">
-                            <button class="approve-request bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-                                    data-username="${user.username}"
-                                    data-role="${user.requestedRole}">
-                                Approve
-                            </button>
-                            <button class="deny-request bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
-                                    data-username="${user.username}">
-                                Deny
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-    }
+    const switchTab = (showUsers = true) => {
+        // Update tab styling
+        usersTab.classList.toggle('border-primary-500', showUsers);
+        usersTab.classList.toggle('text-primary-600', showUsers);
+        usersTab.classList.toggle('border-transparent', !showUsers);
+        usersTab.classList.toggle('text-gray-500', !showUsers);
 
-    // Display all users for management
-    async function displayUsers() {
-        const users = await userService.loadUsers();
-        userManagementContainer.innerHTML = users.map(user => `
-            <div class="bg-white p-4 rounded-lg shadow mb-4">
-                <div class="flex justify-between items-center">
+        recipesTab.classList.toggle('border-primary-500', !showUsers);
+        recipesTab.classList.toggle('text-primary-600', !showUsers);
+        recipesTab.classList.toggle('border-transparent', showUsers);
+        recipesTab.classList.toggle('text-gray-500', showUsers);
+
+        // Show/hide content
+        usersManagement.classList.toggle('hidden', !showUsers);
+        recipeValidation.classList.toggle('hidden', showUsers);
+    };
+
+    const loadPendingRequests = async () => {
+        const requests = await userService.getPendingRoleRequests();
+        pendingRequests.innerHTML = requests.length ? requests.map(request => `
+            <div class="bg-white rounded-xl shadow-card p-6 animate-fade-in">
+                <div class="flex items-center justify-between">
                     <div>
-                        <h3 class="font-bold">${user.username}</h3>
-                        <p class="text-sm text-gray-600">Roles: ${user.roles.join(', ') || 'None'}</p>
+                        <h3 class="text-lg font-semibold text-gray-900">${request.username}</h3>
+                        <p class="text-gray-600">Requesting: ${request.roles.join(', ')}</p>
                     </div>
-                    <div class="space-x-2">
-                        ${!user.roles.includes('Chef') ? `
-                            <button class="add-role bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                    data-username="${user.username}"
-                                    data-role="Chef">
-                                Add Chef
-                            </button>
-                        ` : ''}
-                        ${!user.roles.includes('Traducteur') ? `
-                            <button class="add-role bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                    data-username="${user.username}"
-                                    data-role="Traducteur">
-                                Add Translator
-                            </button>
-                        ` : ''}
+                    <div class="flex gap-3">
+                        <button onclick="handleRoleRequest('${request.username}', ${JSON.stringify(request.roles)}, true)"
+                                class="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                            Approve
+                        </button>
+                        <button onclick="handleRoleRequest('${request.username}', ${JSON.stringify(request.roles)}, false)"
+                                class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                            Deny
+                        </button>
                     </div>
                 </div>
             </div>
-        `).join('');
-    }
+        `).join('') : `
+            <div class="text-center py-12 bg-white rounded-xl shadow-card">
+                <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No Pending Requests</h3>
+                <p class="text-gray-500">All role requests have been processed</p>
+            </div>
+        `;
+    };
 
-    // Handle role request approval
-    async function handleApproveRequest(username, role) {
+    const loadUserManagement = async () => {
+        const users = await userService.getAllUsers();
+        userManagement.innerHTML = `
+            <table class="min-w-full">
+                <thead>
+                    <tr class="bg-gray-50">
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Username</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Roles</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                    ${users.map(user => `
+                        <tr class="hover:bg-gray-50 transition-colors duration-200">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                ${user.username}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <div class="flex flex-wrap gap-2">
+                                    ${user.roles.map(role => `
+                                        <span class="px-2 py-1 bg-primary-100 text-primary-800 rounded-full text-xs">
+                                            ${role}
+                                        </span>
+                                    `).join('')}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <button onclick="handleRemoveRole('${user.username}')"
+                                        class="text-red-600 hover:text-red-900 transition-colors duration-200">
+                                    Remove Roles
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('')}
+                </tbody>
+            </table>
+        `;
+    };
+
+    const loadPendingRecipes = async () => {
+        const recipes = await recipeService.getPendingRecipes();
+        recipesList.innerHTML = recipes.length ? recipes.map(recipe => `
+            <div class="bg-white rounded-xl shadow-card overflow-hidden hover:shadow-card-hover transition-all duration-200">
+                <img src="${recipe.images?.[0]?.url || recipe.imageURL || 'placeholder.jpg'}" 
+                     alt="${recipe.name}" 
+                     class="w-full h-48 object-cover">
+                <div class="p-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-2">${recipe.name}</h3>
+                    <p class="text-gray-600 mb-4">By ${recipe.author}</p>
+                    <div class="flex justify-between items-center">
+                        <button onclick="handleRecipeValidation('${recipe.id}', true)"
+                                class="bg-primary-600 hover:bg-primary-500 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                            Approve
+                        </button>
+                        <button onclick="handleRecipeValidation('${recipe.id}', false)"
+                                class="bg-red-600 hover:bg-red-500 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                            Deny
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('') : `
+            <div class="col-span-full text-center py-12 bg-white rounded-xl shadow-card">
+                <svg class="w-16 h-16 mx-auto text-gray-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">No Pending Recipes</h3>
+                <p class="text-gray-500">All recipes have been reviewed</p>
+            </div>
+        `;
+    };
+
+    // Handle role requests
+    window.handleRoleRequest = async (username, roles, approved) => {
         try {
-            await userService.promoteUser(username, role);
-            displayPendingRequests();
-            displayUsers();
-            showMessage('User role updated successfully', false);
+            await userService.handleRoleRequest(username, roles, approved);
+            showMessage(`Role request ${approved ? 'approved' : 'denied'} successfully`, false);
+            loadPendingRequests();
+            loadUserManagement();
         } catch (error) {
-            showMessage('Error updating user role: ' + error.message);
+            showMessage(error.message);
         }
-    }
+    };
 
-    // Handle role request denial
-    async function handleDenyRequest(username) {
+    // Handle role removal
+    window.handleRemoveRole = async (username) => {
+        if (!confirm(`Are you sure you want to remove all roles from ${username}?`)) return;
+        
         try {
-            const user = await userService.getUserByUsername(username);
-            user.requestedRole = null;
-            displayPendingRequests();
-            showMessage('Request denied successfully', false);
+            await userService.removeUserRoles(username);
+            showMessage('Roles removed successfully', false);
+            loadUserManagement();
         } catch (error) {
-            showMessage('Error denying request: ' + error.message);
+            showMessage(error.message);
         }
-    }
+    };
 
-    // Show message helper
-    function showMessage(message, isError = true) {
-        const messageDiv = document.getElementById('message');
-        if (messageDiv) {
-            messageDiv.textContent = message;
-            messageDiv.classList.toggle('bg-red-100', isError);
-            messageDiv.classList.toggle('text-red-700', isError);
-            messageDiv.classList.toggle('bg-green-100', !isError);
-            messageDiv.classList.toggle('text-green-700', !isError);
-            messageDiv.classList.remove('hidden');
-            setTimeout(() => messageDiv.classList.add('hidden'), 3000);
+    // Handle recipe validation
+    window.handleRecipeValidation = async (recipeId, approved) => {
+        try {
+            await recipeService.validateRecipe(recipeId, approved);
+            showMessage(`Recipe ${approved ? 'approved' : 'denied'} successfully`, false);
+            loadPendingRecipes();
+        } catch (error) {
+            showMessage(error.message);
         }
-    }
+    };
 
-    // Initialize admin interface
-    if (checkAdminAccess()) {
-        // Display initial data
-        await displayPendingRequests();
-        await displayUsers();
-        loadRecipes();
+    // Event listeners
+    usersTab.addEventListener('click', () => switchTab(true));
+    recipesTab.addEventListener('click', () => switchTab(false));
+    
+    languageToggle.addEventListener('click', () => {
+        language = language === 'en' ? 'fr' : 'en';
+        localStorage.setItem('language', language);
+        languageToggle.textContent = language === 'en' ? 'FR' : 'EN';
+        loadPendingRecipes(); // Reload to update recipe names
+    });
 
-        // Event listeners for pending requests
-        pendingRequestsContainer.addEventListener('click', async (e) => {
-            if (e.target.classList.contains('approve-request')) {
-                const { username, role } = e.target.dataset;
-                await handleApproveRequest(username, role);
-            } else if (e.target.classList.contains('deny-request')) {
-                const { username } = e.target.dataset;
-                await handleDenyRequest(username);
-            }
-        });
-
-        // Event listeners for user management
-        userManagementContainer.addEventListener('click', async (e) => {
-            if (e.target.classList.contains('add-role')) {
-                const { username, role } = e.target.dataset;
-                await handleApproveRequest(username, role);
-            }
-        });
-    }
+    // Initialize
+    await Promise.all([
+        loadPendingRequests(),
+        loadUserManagement(),
+        loadPendingRecipes()
+    ]);
 });
