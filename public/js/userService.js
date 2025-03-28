@@ -10,18 +10,20 @@ class UserService {
 
     async loadUsers() {
         try {
-            const response = await $.ajax({
-                url: '../data/users.json',
-                method: 'GET',
-                dataType: 'json'
-            });
+            const response = await $.getJSON('../data/users.json');
             this.users = response;
-            // Also load any locally registered users
-            const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
-            this.users = [...this.users, ...localUsers];
         } catch (error) {
-            console.error('Error loading users:', error);
+            console.warn('Could not load remote users.json, falling back to local only.');
             this.users = [];
+        }
+
+        const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
+        this.users = [...this.users, ...localUsers];
+    }
+
+    async ensureUsersLoaded() {
+        if (this.users.length === 0) {
+            await this.loadUsers();
         }
     }
 
@@ -33,7 +35,6 @@ class UserService {
     async validateLogin(username, password) {
         const user = await this.getUserByUsername(username);
         if (user && user.password === password) {
-            // Remove sensitive data before storing
             const { password: _, ...safeUser } = user;
             this.setLoggedInUser(safeUser);
             return true;
@@ -44,50 +45,35 @@ class UserService {
     async registerUser(username, password, requestedRoles) {
         await this.ensureUsersLoaded();
 
-        // Check if username already exists
-        if (this.users.some(user => user.username === username)) {
-            throw new Error('Username already exists');
-        }
-
-        // Validate input
         if (!username || !password) {
             throw new Error('Username and password are required');
         }
 
+        if (this.users.some(user => user.username === username)) {
+            throw new Error('Username already exists');
+        }
+
+        // Every user is a "Cuisinier" by default
         const newUser = {
             username,
             password,
-            roles: [],
+            roles: ['Cuisinier'],
             requestedRoles: requestedRoles || []
         };
 
-        // Store in localStorage to persist
+        // Save to localStorage
         const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
         localUsers.push(newUser);
         localStorage.setItem('localUsers', JSON.stringify(localUsers));
 
-        // Add to in-memory users
         this.users.push(newUser);
-
-        // Append to users.json using AJAX
-        try {
-            await $.ajax({
-                url: '../data/users.json',
-                method: 'POST',
-                contentType: 'application/json',
-                data: JSON.stringify(newUser)
-            });
-        } catch (error) {
-            console.error('Error appending user to users.json:', error);
-        }
-
         return newUser;
     }
 
     async promoteUser(username, newRole) {
         await this.ensureUsersLoaded();
         const user = this.users.find(u => u.username === username);
-        
+
         if (!user) {
             throw new Error('User not found');
         }
@@ -95,16 +81,15 @@ class UserService {
         if (!user.roles.includes(newRole)) {
             user.roles.push(newRole);
             user.requestedRoles = user.requestedRoles.filter(role => role !== newRole);
-            
-            // Update in localStorage if it's a local user
+
+            // Update localStorage if local user
             const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
-            const localUserIndex = localUsers.findIndex(u => u.username === username);
-            if (localUserIndex >= 0) {
-                localUsers[localUserIndex] = user;
+            const index = localUsers.findIndex(u => u.username === username);
+            if (index >= 0) {
+                localUsers[index] = user;
                 localStorage.setItem('localUsers', JSON.stringify(localUsers));
             }
-            
-            // Update session if this is the current user
+
             const currentUser = this.getLoggedInUser();
             if (currentUser && currentUser.username === username) {
                 const { password: _, ...safeUser } = user;
@@ -117,7 +102,6 @@ class UserService {
 
     setLoggedInUser(user) {
         localStorage.setItem('user', JSON.stringify(user));
-        // Dispatch event for other components to react to login state changes
         window.dispatchEvent(new CustomEvent('userStateChanged', { detail: user }));
     }
 
@@ -131,14 +115,7 @@ class UserService {
         window.dispatchEvent(new CustomEvent('userStateChanged', { detail: null }));
     }
 
-    // Helper method to ensure users are loaded
-    async ensureUsersLoaded() {
-        if (this.users.length === 0) {
-            await this.loadUsers();
-        }
-    }
-
-    // Utility methods for role checking
+    // Role checking
     hasRole(username, role) {
         const user = this.users.find(u => u.username === username);
         return user && user.roles.includes(role);
@@ -157,6 +134,5 @@ class UserService {
     }
 }
 
-// Create and export a singleton instance
 const userService = new UserService();
 export default userService;

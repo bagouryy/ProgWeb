@@ -7,23 +7,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const registerTab = document.getElementById('register-tab');
     const messageDiv = document.getElementById('message');
 
+    // Utility to show message
     const showMessage = (message, isError = true) => {
         messageDiv.textContent = message;
         messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+
         messageDiv.classList.add(
-            isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700',
-            'rounded-lg', 'p-4'
+            isError ? 'bg-red-100' : 'bg-green-100',
+            isError ? 'text-red-700' : 'text-green-700',
+            'rounded-lg', 'p-4', 'animate-fade-in'
         );
+
         setTimeout(() => messageDiv.classList.add('hidden'), 3000);
     };
 
+    // Switch Login/Register tabs and styles
     const switchTab = (showLogin = true) => {
-        loginTab.classList.toggle('bg-primary-500', showLogin);
+        loginTab.classList.toggle('bg-primary-600', showLogin);
         loginTab.classList.toggle('text-white', showLogin);
         loginTab.classList.toggle('bg-gray-100', !showLogin);
         loginTab.classList.toggle('text-gray-700', !showLogin);
 
-        registerTab.classList.toggle('bg-primary-500', !showLogin);
+        registerTab.classList.toggle('bg-primary-600', !showLogin);
         registerTab.classList.toggle('text-white', !showLogin);
         registerTab.classList.toggle('bg-gray-100', showLogin);
         registerTab.classList.toggle('text-gray-700', showLogin);
@@ -32,11 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
         registerForm.classList.toggle('hidden', showLogin);
     };
 
-    // Handle login form submission
+    // Handle login
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const username = document.getElementById('login-username').value;
-        const password = document.getElementById('login-password').value;
+        const username = document.getElementById('login-username').value.trim();
+        const password = document.getElementById('login-password').value.trim();
+
+        if (!username || !password) {
+            showMessage('Please fill in both fields');
+            return;
+        }
 
         try {
             const success = await userService.validateLogin(username, password);
@@ -46,15 +56,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 showMessage('Invalid username or password');
             }
         } catch (error) {
-            showMessage(error.message);
+            showMessage(error.message || 'An error occurred');
         }
     });
 
-    // Handle registration form submission
+    // Handle register
     registerForm.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const username = document.getElementById('register-username').value;
-        const password = document.getElementById('register-password').value;
+        const username = document.getElementById('register-username').value.trim();
+        const password = document.getElementById('register-password').value.trim();
         const roleChef = document.getElementById('role-chef').checked;
         const roleTranslator = document.getElementById('role-translator').checked;
 
@@ -62,12 +72,17 @@ document.addEventListener('DOMContentLoaded', () => {
         if (roleChef) requestedRoles.push('Chef');
         if (roleTranslator) requestedRoles.push('Traducteur');
 
+        if (!username || !password) {
+            showMessage('Username and password are required');
+            return;
+        }
+
         try {
             await userService.registerUser(username, password, requestedRoles);
             showMessage('Registration successful! Please log in.', false);
-            switchTab(true); // Switch to login tab
+            switchTab(true);
         } catch (error) {
-            showMessage(error.message);
+            showMessage(error.message || 'Registration failed');
         }
     });
 
