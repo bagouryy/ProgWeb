@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recipe Manager</title>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <script type="module" src="js/main.js"></script>
     <style>
@@ -41,7 +42,7 @@
     <div id="message" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-lg z-50"></div>
 
     <!-- Navigation -->
-    <nav class="bg-gradient-to-r from-primary-600 to-primary-700 shadow-lg">
+    <nav class="bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
                 <div class="flex items-center">
@@ -56,13 +57,13 @@
                 </div>
                 <div class="flex items-center gap-6">
                     <button id="language-toggle" 
-                            class="bg-primary-500 hover:bg-primary-400 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm">
+                            class="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm">
                         EN
                     </button>
                     <div class="flex items-center gap-4">
                         <span id="user-info" class="text-white text-sm"></span>
                         <button id="logout" 
-                                class="bg-primary-800 hover:bg-primary-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm">
+                                class="bg-blue-800 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm">
                             Logout
                         </button>
                     </div>
@@ -79,7 +80,7 @@
                     <input type="text" 
                            id="search" 
                            placeholder="Search recipes..." 
-                           class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500">
+                           class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
                     <div class="absolute inset-y-0 right-0 flex items-center pr-3">
                         <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
@@ -89,7 +90,7 @@
                 <div class="flex items-center gap-2">
                     <label for="sort-recipes" class="text-sm font-medium text-gray-700">Sort by:</label>
                     <select id="sort-recipes" 
-                            class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 p-2.5">
+                            class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
                         <option value="newest">Newest First</option>
                         <option value="oldest">Oldest First</option>
                         <option value="name-asc">Name A-Z</option>
@@ -122,5 +123,9 @@
             <!-- Recipe cards will be injected here -->
         </div>
     </main>
+
+    <footer class="bg-blue-700 text-white py-4 text-center">
+        <p>&copy; 2025 Recipe Manager. All rights reserved.</p>
+    </footer>
 </body>
 </html>

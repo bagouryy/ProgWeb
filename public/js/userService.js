@@ -10,8 +10,12 @@ class UserService {
 
     async loadUsers() {
         try {
-            const response = await fetch('../data/users.json');
-            this.users = await response.json();
+            const response = await $.ajax({
+                url: '../data/users.json',
+                method: 'GET',
+                dataType: 'json'
+            });
+            this.users = response;
             // Also load any locally registered users
             const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
             this.users = [...this.users, ...localUsers];
@@ -39,7 +43,7 @@ class UserService {
 
     async registerUser(username, password, requestedRoles) {
         await this.ensureUsersLoaded();
-        
+
         // Check if username already exists
         if (this.users.some(user => user.username === username)) {
             throw new Error('Username already exists');
@@ -64,6 +68,19 @@ class UserService {
 
         // Add to in-memory users
         this.users.push(newUser);
+
+        // Append to users.json using AJAX
+        try {
+            await $.ajax({
+                url: '../data/users.json',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(newUser)
+            });
+        } catch (error) {
+            console.error('Error appending user to users.json:', error);
+        }
+
         return newUser;
     }
 

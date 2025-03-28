@@ -10,16 +10,41 @@ class RecipeService {
 
     async loadRecipes() {
         try {
+            const url = '/data/recipes.json';
+            console.log('Fetching recipes from:', url);
+
             // Load base recipes from JSON file
-            const response = await fetch('../data/recipes.json');
-            const baseRecipes = await response.json();
-            
+            const response = await $.ajax({
+                url: url,
+                method: 'GET',
+                dataType: 'json'
+            });
+            console.log('Fetched recipes:', response);
+
+            const baseRecipes = response;
+
             // Load any locally stored recipes and merge them
             const localRecipes = JSON.parse(localStorage.getItem('localRecipes') || '[]');
             this.recipes = [...baseRecipes, ...localRecipes];
+            console.log('Final recipes array:', this.recipes);
         } catch (error) {
             console.error('Error loading recipes:', error);
-            this.recipes = [];
+
+            // Fallback data for debugging
+            this.recipes = [
+                {
+                    id: '1',
+                    name: 'Fallback Recipe',
+                    nameFR: 'Recette de secours',
+                    author: 'Unknown',
+                    ingredients: [
+                        { quantity: '1', name: 'Ingredient 1', type: 'Misc' }
+                    ],
+                    steps: ['Step 1', 'Step 2'],
+                    dietary: { glutenFree: true, vegan: false },
+                    images: []
+                }
+            ];
         }
     }
 
@@ -35,7 +60,7 @@ class RecipeService {
 
     async saveRecipe(recipe) {
         await this.ensureRecipesLoaded();
-        
+
         // Generate new ID for new recipes
         if (!recipe.id) {
             recipe.id = Date.now().toString();
@@ -61,6 +86,18 @@ class RecipeService {
             this.recipes[memoryIndex] = recipe;
         } else {
             this.recipes.push(recipe);
+        }
+
+        // Append to recipes.json using AJAX
+        try {
+            await $.ajax({
+                url: '../data/recipes.json',
+                method: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(recipe)
+            });
+        } catch (error) {
+            console.error('Error appending recipe to recipes.json:', error);
         }
 
         return recipe;
@@ -109,8 +146,12 @@ class RecipeService {
 
     // Helper method to ensure recipes are loaded
     async ensureRecipesLoaded() {
+        console.log('Ensuring recipes are loaded...');
         if (this.recipes.length === 0) {
+            console.log('Recipes array is empty. Loading recipes...');
             await this.loadRecipes();
+        } else {
+            console.log('Recipes are already loaded.');
         }
     }
 }

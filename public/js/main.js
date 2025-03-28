@@ -1,8 +1,15 @@
 import recipeService from './recipeService.js';
 import userService from './userService.js';
 
+console.log('main.js script loaded');
+
 document.addEventListener('DOMContentLoaded', async () => {
     const recipesList = document.getElementById('recipes-list');
+    if (!recipesList) {
+        console.error('Element with id "recipes-list" not found.');
+        return;
+    }
+
     const searchInput = document.getElementById('search');
     const filterButtons = document.querySelectorAll('.filter-btn');
     const clearFiltersBtn = document.getElementById('clear-filters');
@@ -20,13 +27,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     let language = localStorage.getItem('language') || 'en';
 
     const showMessage = (message, isError = true) => {
-        messageDiv.textContent = message;
-        messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
-        messageDiv.classList.add(
-            isError ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700',
-            'animate-fade-in'
-        );
-        setTimeout(() => messageDiv.classList.add('hidden'), 3000);
+        if (messageDiv) {
+            messageDiv.textContent = message;
+            messageDiv.classList.remove('hidden', 'bg-red-100', 'text-red-700', 'bg-green-100', 'text-green-700');
+            if (isError) {
+                messageDiv.classList.add('bg-red-100');
+                messageDiv.classList.add('text-red-700');
+            } else {
+                messageDiv.classList.add('bg-green-100');
+                messageDiv.classList.add('text-green-700');
+            }
+            messageDiv.classList.add('animate-fade-in');
+            setTimeout(() => messageDiv.classList.add('hidden'), 3000);
+        } else {
+            console.error('Message element not found:', message);
+        }
     };
 
     const createRecipeCard = (recipe) => {
@@ -71,16 +86,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         return card;
     };
 
-    const loadRecipes = async () => {
-        try {
-            recipes = await recipeService.getAllRecipes();
-            updateRecipeDisplay();
-        } catch (error) {
-            showMessage(error.message);
-        }
-    };
-
     const updateRecipeDisplay = () => {
+        console.log('Recipes to display:', recipes); // Log the recipes being processed
+
         let filteredRecipes = [...recipes];
 
         // Apply search filter
@@ -131,14 +139,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         // Clear and update the recipes list
         while (recipesList.firstChild) {
-            recipesList.firstChild.classList.add('animate-fade-out');
+            if (recipesList.firstChild.classList) {
+                recipesList.firstChild.classList.add('animate-fade-out');
+            }
             setTimeout(() => recipesList.removeChild(recipesList.firstChild), 200);
         }
 
         // Add new recipe cards with staggered animation
         filteredRecipes.forEach((recipe, index) => {
             setTimeout(() => {
-                recipesList.appendChild(createRecipeCard(recipe));
+                const card = createRecipeCard(recipe);
+                if (card) {
+                    recipesList.appendChild(card);
+                }
             }, index * 100);
         });
 
@@ -168,29 +181,35 @@ document.addEventListener('DOMContentLoaded', async () => {
         }, 300);
     });
 
+    // Ensure filter buttons exist before adding event listeners
     filterButtons.forEach(btn => {
-        btn.addEventListener('click', () => {
-            const filter = btn.dataset.filter;
-            if (activeFilters.has(filter)) {
-                activeFilters.delete(filter);
-                btn.classList.remove('bg-primary-600', 'text-white');
-                btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
-            } else {
-                activeFilters.add(filter);
-                btn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
-                btn.classList.add('bg-primary-600', 'text-white');
-            }
-            updateRecipeDisplay();
-        });
+        if (btn) {
+            btn.addEventListener('click', () => {
+                const filter = btn.dataset.filter;
+                if (activeFilters.has(filter)) {
+                    activeFilters.delete(filter);
+                    btn.classList.remove('bg-primary-600', 'text-white');
+                    btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+                } else {
+                    activeFilters.add(filter);
+                    btn.classList.remove('bg-white', 'text-gray-700', 'border-gray-300');
+                    btn.classList.add('bg-primary-600', 'text-white');
+                }
+                updateRecipeDisplay();
+            });
+        }
     });
 
+    // Ensure clear filters button exists before adding event listener
     clearFiltersBtn?.addEventListener('click', () => {
         activeFilters.clear();
         currentSearch = '';
         if (searchInput) searchInput.value = '';
         filterButtons.forEach(btn => {
-            btn.classList.remove('bg-primary-600', 'text-white');
-            btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+            if (btn) {
+                btn.classList.remove('bg-primary-600', 'text-white');
+                btn.classList.add('bg-white', 'text-gray-700', 'border-gray-300');
+            }
         });
         updateRecipeDisplay();
     });
@@ -250,5 +269,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateNavigation();
 
     // Initialize
-    await loadRecipes();
+    try {
+        await recipeService.loadRecipes(); // Correctly call loadRecipes
+        recipes = await recipeService.getAllRecipes(); // Update the recipes array
+        updateRecipeDisplay(); // Display the recipes
+    } catch (error) {
+        console.error('Error initializing recipes:', error);
+        showMessage('Failed to initialize recipes. Please try again later.', true);
+    }
 });
