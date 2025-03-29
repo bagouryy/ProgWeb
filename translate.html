@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Traduction de Recettes</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="js/translate.js"></script>
+</head>
+<body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
+  
+  <div id="message" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-lg z-50"></div>
+
+  <!-- Navigation -->
+  <nav class="bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-20">
+        <div class="flex items-center">
+          <a href="index.html" class="text-white text-2xl font-bold tracking-tight">Recipe Manager</a>
+          <div class="hidden md:block">
+            <div id="nav-menu" class="ml-10 flex items-baseline space-x-4"></div>
+          </div>
+        </div>
+        <div class="flex items-center gap-6">
+          <button id="language-toggle"
+            class="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm">
+            EN
+          </button>
+          <div class="flex items-center gap-4">
+            <span id="user-info" class="text-white text-sm"></span>
+            <button id="logout"
+              class="bg-blue-800 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200 font-medium text-sm">
+              Logout
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-5xl mx-auto py-10 px-4">
+    <h1 id="page-title" class="text-3xl font-bold text-gray-800 mb-6 text-center" data-i18n="title">Traduire les Recettes</h1>
+
+    <div class="mb-6 flex justify-end">
+      <label for="lang-filter" class="mr-2 text-sm font-medium text-gray-700 self-center" data-i18n="filter">Filtrer :</label>
+      <select id="lang-filter"
+        class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 px-4 py-2">
+        <option value="all">All</option>
+        <option value="published">Published</option>
+        <option value="unpublished">Unpublished</option>
+        <option value="untranslated">Untranslated</option>
+        <option value="partial">Partially Translated</option>
+        <option value="translated">Fully Translated</option>
+      </select>
+    </div>
+
+    <div id="translate-list" class="space-y-8"></div>
+  </main>
+
+  <footer class="bg-blue-700 text-white py-4 text-center">
+    <p>&copy; 2025 Recipe Manager. Tous droits réservés.</p>
+  </footer>
+
+  <script type="module">
+    import userService from './js/userService.js';
+
+    const navMenu = document.getElementById('nav-menu');
+    const userInfo = document.getElementById('user-info');
+    const logoutButton = document.getElementById('logout');
+    const languageToggle = document.getElementById('language-toggle');
+
+    const updateNav = () => {
+      const user = userService.getLoggedInUser();
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      userInfo.textContent = user.username;
+
+      navMenu.innerHTML = `
+        <a href="index.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
+        ${userService.isAdmin(user.username) ? `<a href="admin.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Admin</a>` : ''}
+        ${userService.isChef(user.username) ? `<a href="chef.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Submit Recipe</a>` : ''}
+        ${userService.isTranslator(user.username) ? `<a href="translate.html" class="text-white px-3 py-2 rounded-md text-sm font-medium bg-blue-900">Translate</a>` : ''}
+      `;
+    };
+
+    const translations = {
+      title: {
+        en: 'Translate Recipes',
+        fr: 'Traduire les Recettes'
+      },
+      filter: {
+        en: 'Filter:',
+        fr: 'Filtrer :'
+      }
+    };
+
+    const applyTranslations = () => {
+      const lang = localStorage.getItem('language') || 'en';
+      languageToggle.textContent = lang === 'en' ? 'FR' : 'EN';
+
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        if (translations[key] && translations[key][lang]) {
+          el.textContent = translations[key][lang];
+        }
+      });
+    };
+
+    logoutButton.addEventListener('click', e => {
+      e.preventDefault();
+      userService.logoutUser();
+      window.location.href = 'login.html';
+    });
+
+    languageToggle.addEventListener('click', () => {
+      const current = localStorage.getItem('language') || 'en';
+      const next = current === 'en' ? 'fr' : 'en';
+      localStorage.setItem('language', next);
+      languageToggle.textContent = next.toUpperCase();
+      applyTranslations();
+    });
+
+    window.addEventListener('userStateChanged', updateNav);
+    updateNav();
+    applyTranslations();
+  </script>
+</body>
+</html>
