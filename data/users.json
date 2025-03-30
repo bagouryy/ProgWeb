@@ -36,13 +36,11 @@
     ]
   },
   {
-    "username": "test1",
-    "password": "test1",
+    "username": "test123",
+    "password": "test123",
     "roles": [
-      "Chef"
+      "Traducteur"
     ],
-    "requestedRoles": [
-      "Chef"
-    ]
+    "requestedRoles": []
   }
 ]

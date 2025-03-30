@@ -8,10 +8,9 @@ class UserService {
     async loadUsers() {
       try {
         const response = await $.getJSON('/data/users.json');
-        const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
-        this.users = [...response, ...localUsers];
+        this.users = response;
       } catch (error) {
-        console.error('Error loading users:', error);
+        console.error('Error loading users from server:', error);
         this.users = [];
       }
     }
@@ -37,7 +36,7 @@ class UserService {
       return false;
     }
   
-    async registerUser(username, password, requestedRoles) {
+    async registerUser(username, password, requestedRoles = []) {
       await this.ensureUsersLoaded();
       if (!username || !password) throw new Error('Username and password are required');
       if (this.users.some(user => user.username === username)) throw new Error('Username already exists');
@@ -46,13 +45,8 @@ class UserService {
         username,
         password,
         roles: [],
-        requestedRoles: requestedRoles || []
+        requestedRoles
       };
-  
-      const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
-      localUsers.push(newUser);
-      localStorage.setItem('localUsers', JSON.stringify(localUsers));
-      this.users.push(newUser);
   
       try {
         await $.ajax({
@@ -61,8 +55,9 @@ class UserService {
           contentType: 'application/json',
           data: JSON.stringify(newUser)
         });
+        this.users.push(newUser);
       } catch (error) {
-        console.warn('Could not persist user to JSON file:', error);
+        console.error('Failed to save user to server:', error);
       }
   
       return newUser;
@@ -77,11 +72,15 @@ class UserService {
         user.roles.push(newRole);
         user.requestedRoles = user.requestedRoles.filter(r => r !== newRole);
   
-        const localUsers = JSON.parse(localStorage.getItem('localUsers') || '[]');
-        const index = localUsers.findIndex(u => u.username === username);
-        if (index >= 0) {
-          localUsers[index] = user;
-          localStorage.setItem('localUsers', JSON.stringify(localUsers));
+        try {
+          await $.ajax({
+            url: '/api/users',
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(user)
+          });
+        } catch (error) {
+          console.warn('Could not update user to server:', error);
         }
   
         const currentUser = this.getLoggedInUser();
@@ -90,6 +89,7 @@ class UserService {
           this.setLoggedInUser(safeUser);
         }
       }
+  
       return user;
     }
   
@@ -109,12 +109,13 @@ class UserService {
     }
   
     hasRole(username, role) {
-      const loggedUser = this.getLoggedInUser();
-      if (loggedUser?.username === username && Array.isArray(loggedUser.roles)) {
-        return loggedUser.roles.includes(role);
+      const sessionUser = this.getLoggedInUser();
+      if (sessionUser?.username === username) {
+        return sessionUser.roles.includes(role);
       }
+  
       const user = this.users.find(u => u.username === username);
-      return user && Array.isArray(user.roles) && user.roles.includes(role);
+      return user?.roles.includes(role);
     }
   
     isAdmin(username) {
@@ -129,15 +130,14 @@ class UserService {
       return this.hasRole(username, 'Traducteur');
     }
   
-    isFullyTranslated(recipe) {
-      return !!(recipe.nameFR && Array.isArray(recipe.ingredientsFR) && recipe.ingredientsFR.length && Array.isArray(recipe.stepsFR) && recipe.stepsFR.length);
+    isPartiallyTranslated(recipe) {
+      return Boolean(recipe.nameFR || recipe.ingredientsFR?.length || recipe.stepsFR?.length);
     }
   
-    isPartiallyTranslated(recipe) {
-      return !!(recipe.nameFR || (Array.isArray(recipe.ingredientsFR) && recipe.ingredientsFR.length) || (Array.isArray(recipe.stepsFR) && recipe.stepsFR.length));
+    isFullyTranslated(recipe) {
+      return Boolean(recipe.nameFR && recipe.ingredientsFR?.length && recipe.stepsFR?.length);
     }
   }
   
   const userService = new UserService();
   export default userService;
-  
