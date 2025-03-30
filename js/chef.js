@@ -58,20 +58,40 @@ document.addEventListener('DOMContentLoaded', () => {
         type: parts[parts.length - 1]
       };
     });
-    const steps = document.getElementById('recipe-steps').value.trim().split('\n').filter(Boolean);
+    const stepLines = document.getElementById('recipe-steps').value.trim().split('\n').filter(Boolean);
+    const steps = [];
+    const timers = [];
+
+    stepLines.forEach(line => {
+      const match = line.trim().match(/^(.*?)(?:\s+(\d+))?$/);  // captures step + optional number
+      if (match) {
+        const stepText = match[1].trim();
+        const time = match[2] ? parseInt(match[2]) : 0;
+        steps.push(stepText);
+        timers.push(time);
+      }
+    });
+
     const imageURL = document.getElementById('recipe-image').value.trim();
-    const dietary = {
-      glutenFree: document.getElementById('gluten-free').checked,
-      vegan: document.getElementById('vegan').checked
-    };
+    const originalURL = document.getElementById('recipe-original-url').value.trim();
+    const without = [];
+    if (document.getElementById('gluten-free').checked) {
+      without.push('NoGluten');
+    }
+    if (document.getElementById('vegan').checked) {
+      without.push('Vegan');
+    }
+
 
     const newRecipe = {
       author: user.username,
       name,
+      without,
       ingredients,
       steps,
+      timers,
       imageURL,
-      dietary,
+      originalURL,
       published: false
     };
 
