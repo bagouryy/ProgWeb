@@ -9,7 +9,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const user = userService.getLoggedInUser();
   console.log('chef.js: Logged-in user:', user); // Debugging log
 
-  if (!user || !userService.isChef(user.username)) {
+  if (!user || !userService.isChef()) {
     console.log('chef.js: User is not a chef or not logged in'); // Debugging log
     return window.location.href = 'login.html';
   }

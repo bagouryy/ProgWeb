@@ -50,5 +50,13 @@
       "Traducteur"
     ],
     "requestedRoles": []
+  },
+  {
+    "username": "testing",
+    "password": "test",
+    "roles": [],
+    "requestedRoles": [
+      "Chef"
+    ]
   }
 ]

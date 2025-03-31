@@ -103,20 +103,19 @@ class UserService {
   
     isAdmin() {
       const user = this.getLoggedInUser();
-      return user?.roles.includes('Admin');
+      return user && Array.isArray(user.roles) && user.roles.includes('Admin');
     }
-  
-    isChef(username) {
+
+    isChef() {
       const user = this.getLoggedInUser();
-      return user?.roles.includes('Chef');
+      return user && Array.isArray(user.roles) && user.roles.includes('Chef');
     }
-  
-    isTranslator(username) {
+
+    isTranslator() {
       const user = this.getLoggedInUser();
-      return user?.roles.includes('Traducteur');
+      return user && Array.isArray(user.roles) && user.roles.includes('Traducteur');
     }
   }
   
   const userService = new UserService();
   export default userService;
-  

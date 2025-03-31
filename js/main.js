@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       : '';
 
     const ingredients = recipe.ingredients.map(ing => `<li>${ing.quantity} ${ing.name} (${ing.type})</li>`).join('');
-    const steps = recipe.steps.map((step, index) => `<li>${index + 1}. ${step}</li>`).join('');
+    const steps = recipe.steps.map((step) => `<li> ${step}</li>`).join('');
 
     modalContent.innerHTML = `
       ${image}

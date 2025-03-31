@@ -49,8 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const user = await userService.validateLogin(username, password);
-            if (user) {
+            if (await userService.validateLogin(username, password)) {
+                const user = await userService.getUserByUsername(username);
                 localStorage.setItem('user', JSON.stringify(user)); // Store user in localStorage
                 window.location.href = 'index.html';
             } else {

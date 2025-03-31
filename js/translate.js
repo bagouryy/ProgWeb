@@ -35,7 +35,7 @@ function isPartiallyTranslated(recipe) {
 document.addEventListener('DOMContentLoaded', async () => {
   await userService.loadUsers();
   const user = userService.getLoggedInUser();
-  if (!user || !userService.isTranslator(user.username)) {
+  if (!user || !userService.isTranslator()) {
     return window.location.href = 'login.html';
   }
 
