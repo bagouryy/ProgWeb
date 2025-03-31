@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const createCard = (recipe) => {
     const card = document.createElement('div');
-    card.className = 'bg-white rounded-xl shadow-card p-4 hover:shadow-card-hover transition duration-200 cursor-pointer';
+    card.className = 'bg-white rounded-xl shadow-card p-4 hover:shadow-card-hover transition duration-200 relative';
 
     const title = language === 'fr' && recipe.nameFR ? recipe.nameFR : recipe.name;
 
@@ -29,7 +29,37 @@ document.addEventListener('DOMContentLoaded', async () => {
       ${image}
       <h3 class="text-xl font-semibold mt-4">${title}</h3>
       <p class="text-sm text-gray-600">Author: ${recipe.author || recipe.Author || 'Unknown'}</p>
+      <p class="text-sm text-gray-600">Likes: <span class="likes-count">${recipe.likes || 0}</span></p>
+      <button class="like-btn absolute bottom-4 right-4 bg-transparent transition duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="${recipe.liked ? 'red' : 'none'}" viewBox="0 0 24 24" stroke="red" stroke-width="2" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 
+            4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 
+            14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 
+            3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+        </svg>
+      </button>
     `;
+    
+
+    card.querySelector('.like-btn').addEventListener('click', async (e) => {
+      e.stopPropagation(); // Prevent opening the modal
+      try {
+        let updatedRecipe = null;
+        if (recipe.liked) {
+            updatedRecipe = await recipeService.removeLike(recipe.id);
+        }else {
+            updatedRecipe = await recipeService.addLike(recipe.id);
+        }
+        recipe.likes = updatedRecipe.likes;
+        recipe.liked = !recipe.liked; // Toggle liked state
+        const likesCount = card.querySelector('.likes-count');
+        likesCount.textContent = recipe.likes;
+        const likeIcon = card.querySelector('.like-btn svg');
+        likeIcon.setAttribute('fill', recipe.liked ? 'currentColor' : 'none');
+      } catch (error) {
+        console.error('Error liking recipe:', error);
+      }
+    });
 
     card.addEventListener('click', () => {
       showRecipeModal(recipe);
@@ -62,7 +92,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       ? recipe.ingredientsFR.map(ing => `<li>${ing.quantity} ${ing.name} (${ing.type})</li>`).join('')
       : recipe.ingredients?.map(ing => `<li>${ing.quantity} ${ing.name} (${ing.type})</li>`).join('') || '<p class="text-sm text-red-500">No Ingredients Available</p>';
 
-    const steps = (language === 'fr' && recipe.stepsFR)
+    const steps = (lang === 'fr' && recipe.stepsFR)
       ? recipe.stepsFR.map((step, index) => {
         const timer = recipe.timers && recipe.timers[index] && recipe.timers[index] !== 0 ? ` ~ ${recipe.timers[index]} mins` : '';
         return `<li>${step}${timer}</li>`;
@@ -73,6 +103,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       }).join('') || '<p class="text-sm text-red-500">No Steps Available</p>';
 
 
+    const comments = recipe.comments?.map(comment => `<p><strong>${comment.name}:</strong> ${comment.text}</p>`).join('') || '<p class="text-sm text-gray-500">No comments yet.</p>';
+
     modalContent.innerHTML = `
       ${image}
       <h2 class="text-2xl font-bold mb-4">${title}</h2>
@@ -81,15 +113,42 @@ document.addEventListener('DOMContentLoaded', async () => {
       <ul class="list-disc list-inside mb-4">${ingredients}</ul>
       <h3 class="text-lg font-semibold mb-2">Steps:</h3>
       <ol class="list-decimal list-inside">${steps}</ol>
+      <p class="text-sm text-gray-600">Likes: ${recipe.likes || 0}</p>
+      <h3 class="text-lg font-semibold mb-2">Comments:</h3>
+      <div id="comments-section" class="mb-4">${comments}</div>
+      <form id="comment-form" class="space-y-2">
+        <input type="text" id="comment-name" placeholder="Your name" class="w-full p-2 border rounded" required />
+        <textarea id="comment-text" placeholder="Your comment" class="w-full p-2 border rounded" rows="3" required></textarea>
+        <button type="submit" class="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded">Submit Comment</button>
+      </form>
       <button id="close-modal" class="mt-4 bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded">Close</button>
     `;
 
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
 
+    document.getElementById('comment-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('comment-name').value.trim();
+      const text = document.getElementById('comment-text').value.trim();
+
+      if (name && text) {
+        try {
+          const updatedRecipe = await recipeService.addComment(recipe.id, { name, text });
+          recipe.comments = updatedRecipe.comments;
+          const commentsSection = document.getElementById('comments-section');
+          commentsSection.innerHTML = recipe.comments.map(comment => `<p><strong>${comment.name}:</strong> ${comment.text}</p>`).join('');
+          document.getElementById('comment-form').reset();
+        } catch (error) {
+          console.error('Error adding comment:', error);
+        }
+      }
+    });
+
     const closeModal = () => {
       modal.remove();
     };
+
     modal.addEventListener('click', (e) => {
       if (e.target === modal) closeModal();
     });
