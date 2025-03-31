@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (editButton) editButton.style.display = canEdit ? '' : 'none';
         if (deleteButton) deleteButton.style.display = canDelete ? '' : 'none';
     }
-
+    
     // Initialize
     await loadRecipe();
 });

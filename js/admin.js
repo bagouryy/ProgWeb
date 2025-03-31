@@ -151,39 +151,103 @@ document.addEventListener('DOMContentLoaded', async () => {
     list.innerHTML = '';
 
     recipes.filter(r => !r.published).forEach(recipe => {
+      const missingFields = [];
+      if (!recipe.name) missingFields.push('Name');
+      if (!recipe.ingredients || recipe.ingredients.length === 0) missingFields.push('Ingredients');
+      if (!recipe.steps || recipe.steps.length === 0) missingFields.push('Steps');
+      if (!recipe.imageURL) missingFields.push('Image');
+
       const card = document.createElement('div');
       card.className = 'bg-white rounded-xl p-4 shadow-card';
       card.innerHTML = `
         <h3 class="text-lg font-bold text-gray-900 mb-2">${recipe.name || 'Untitled'}</h3>
         <p class="text-sm text-gray-500 mb-2">Author: ${recipe.author || recipe.Author || 'N/A'}</p>
-        <button class="mt-3 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded publish-btn" data-name="${recipe.name}">
-          Mark as Published
-        </button>
+        <p class="text-sm text-red-500 mb-2">Missing Fields: ${missingFields.join(', ') || 'None'}</p>
+        <button class="mt-3 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded" data-id="${recipe.id}">Visualize</button>
+        <button class="mt-3 bg-green-600 hover:bg-green-500 text-white px-4 py-2 rounded" data-id="${recipe.id}">Mark as Published</button>
       `;
       list.appendChild(card);
     });
-    
 
-    list.querySelectorAll('.publish-btn').forEach(btn => {
+    list.querySelectorAll('button.bg-blue-600').forEach(btn => {
       btn.addEventListener('click', async () => {
-        const name = btn.getAttribute('data-name');
-        btn.disabled = true;
-        btn.textContent = 'Publishing...';
-    
-        try {
-          const success = await recipeService.updateRecipeStatus(name, true);
-          if (success) {
-            btn.textContent = 'Published ✅';
-            setTimeout(() => loadPendingRecipes(), 1500); // refresh list
-          } else {
-            btn.textContent = 'Not Found ❌';
-          }
-        } catch (err) {
-          console.error('Publish error:', err);
-          btn.textContent = 'Error ⚠️';
-        }
+        const id = btn.getAttribute('data-id');
+        console.log('Visualizing recipe with ID:', id);
+        const recipe = await recipeService.getRecipeById(id);
+        visualizeRecipe(recipe);
       });
     });
+
+    list.querySelectorAll('button.bg-green-600').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const id = btn.getAttribute('data-id');
+        await recipeService.updateRecipeStatus(id, true);
+        loadPendingRecipes();
+      });
+    });
+  }
+
+  function visualizeRecipe(recipe) {
+    if (!recipe) {
+      console.error('visualizeRecipe: Recipe is undefined');
+      alert('Error: Recipe not found');
+      return;
+    }
+
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'bg-white rounded-lg shadow-lg p-6 max-w-4xl w-full max-h-full overflow-y-auto';
+
+    const lang = localStorage.getItem('language') || 'en';
+    const title = lang === 'fr' && recipe.nameFR ? recipe.nameFR : recipe.name || 'Untitled';
+
+    const image = recipe.imageURL
+      ? `<img src="${recipe.imageURL}" alt="${title}" class="w-full h-64 object-cover rounded-lg mb-4">`
+      : '<p class="text-sm text-red-500">No Image Available</p>';
+
+    const ingredients = (lang === 'fr' && recipe.ingredientsFR)
+      ? recipe.ingredientsFR.map(ing => `<li>${ing.quantity} ${ing.name} (${ing.type})</li>`).join('')
+      : recipe.ingredients?.map(ing => `<li>${ing.quantity} ${ing.name} (${ing.type})</li>`).join('') || '<p class="text-sm text-red-500">No Ingredients Available</p>';
+
+    const steps = (lang === 'fr' && recipe.stepsFR)
+      ? recipe.stepsFR.map((step, index) => {
+        const timer = recipe.timers && recipe.timers[index] && recipe.timers[index] !== 0 ? ` ~ ${recipe.timers[index]} mins` : '';
+        return `<li>${step}${timer}</li>`;
+      }).join('')
+      : recipe.steps?.map((step, index) => {
+        const timer = recipe.timers && recipe.timers[index] && recipe.timers[index] !== 0 ? ` ~ ${recipe.timers[index]} mins` : '';
+        return `<li>${step}${timer}</li>`;
+      }).join('') || '<p class="text-sm text-red-500">No Steps Available</p>';
+
+    modalContent.innerHTML = `
+      ${image}
+      <h2 class="text-2xl font-bold mb-4">${title}</h2>
+      <p class="text-sm text-gray-600 mb-4">Author: ${recipe.author || recipe.Author || 'Unknown'}</p>
+      <h3 class="text-lg font-semibold mb-2">Ingredients:</h3>
+      <ul class="list-disc list-inside mb-4">${ingredients}</ul>
+      <h3 class="text-lg font-semibold mb-2">Steps:</h3>
+      <ol class="list-decimal list-inside">${steps}</ol>
+      <button id="close-modal" class="mt-4 bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded">Close</button>
+    `;
+
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+
+    const closeModal = () => {
+      modal.remove();
+    };
+
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    document.getElementById('close-modal').addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    }, { once: true });
   }
 
   await loadPendingUsers();

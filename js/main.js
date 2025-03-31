@@ -39,20 +39,39 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   const showRecipeModal = (recipe) => {
+    if (!recipe) {
+      console.error('showRecipeModal: Recipe is undefined');
+      alert('Error: Recipe not found');
+      return;
+    }
+
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
 
     const modalContent = document.createElement('div');
-    modalContent.className = 'bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full';
+    modalContent.className = 'bg-white rounded-lg shadow-lg p-6 max-w-4xl w-full max-h-full overflow-y-auto';
 
-    const title = language === 'fr' && recipe.nameFR ? recipe.nameFR : recipe.name;
+    const lang = localStorage.getItem('language') || 'en';
+    const title = lang === 'fr' && recipe.nameFR ? recipe.nameFR : recipe.name || 'Untitled';
 
     const image = recipe.imageURL
       ? `<img src="${recipe.imageURL}" alt="${title}" class="w-full h-64 object-cover rounded-lg mb-4">`
-      : '';
+      : '<p class="text-sm text-red-500">No Image Available</p>';
 
-    const ingredients = recipe.ingredients.map(ing => `<li>${ing.quantity} ${ing.name} (${ing.type})</li>`).join('');
-    const steps = recipe.steps.map((step) => `<li> ${step}</li>`).join('');
+    const ingredients = (lang === 'fr' && recipe.ingredientsFR)
+      ? recipe.ingredientsFR.map(ing => `<li>${ing.quantity} ${ing.name} (${ing.type})</li>`).join('')
+      : recipe.ingredients?.map(ing => `<li>${ing.quantity} ${ing.name} (${ing.type})</li>`).join('') || '<p class="text-sm text-red-500">No Ingredients Available</p>';
+
+    const steps = (language === 'fr' && recipe.stepsFR)
+      ? recipe.stepsFR.map((step, index) => {
+        const timer = recipe.timers && recipe.timers[index] && recipe.timers[index] !== 0 ? ` ~ ${recipe.timers[index]} mins` : '';
+        return `<li>${step}${timer}</li>`;
+      }).join('')
+      : recipe.steps?.map((step, index) => {
+        const timer = recipe.timers && recipe.timers[index] && recipe.timers[index] !== 0 ? ` ~ ${recipe.timers[index]} mins` : '';
+        return `<li>${step}${timer}</li>`;
+      }).join('') || '<p class="text-sm text-red-500">No Steps Available</p>';
+
 
     modalContent.innerHTML = `
       ${image}
@@ -68,9 +87,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
 
-    document.getElementById('close-modal').addEventListener('click', () => {
+    const closeModal = () => {
       modal.remove();
+    };
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
     });
+
+    document.getElementById('close-modal').addEventListener('click', closeModal);
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    }, { once: true });
   };
 
   const filterAndRender = () => {

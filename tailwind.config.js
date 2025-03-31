@@ -3,6 +3,9 @@ module.exports = {
   content: ["./public/**/*.{html,js}"],
   theme: {
     extend: {
+      screens: {
+        'xs': '480px', // Add extra small screen size for better phone compatibility
+      },
       colors: {
         primary: {
           50: '#f0f9ff',
