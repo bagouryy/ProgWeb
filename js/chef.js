@@ -2,17 +2,22 @@ import userService from './userService.js';
 import recipeService from './recipeService.js';
 import Navigation from './navigation.js';
 
-// Initialize navigation
-Navigation.init('nav-menu', 'user-info', 'logout', 'language-toggle');
-
 document.addEventListener('DOMContentLoaded', async () => {
+  console.log('chef.js: DOMContentLoaded event triggered'); // Debugging log
+
   await userService.loadUsers();
   const user = userService.getLoggedInUser();
+  console.log('chef.js: Logged-in user:', user); // Debugging log
+
   if (!user || !userService.isChef(user.username)) {
+    console.log('chef.js: User is not a chef or not logged in'); // Debugging log
     return window.location.href = 'login.html';
   }
 
   const language = localStorage.getItem('language') || 'en';
+  console.log('chef.js: Current language:', language); // Debugging log
+
+  Navigation.init('nav-menu', 'user-info', 'logout', 'language-toggle');
 
   const t = {
     en: {
@@ -86,7 +91,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (document.getElementById('vegan').checked) {
       without.push('Vegan');
     }
-
 
     const newRecipe = {
       author: user.username,

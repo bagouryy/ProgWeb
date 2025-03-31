@@ -2,6 +2,9 @@ import userService from './userService.js';
 import recipeService from './recipeService.js';
 import Navigation from './navigation.js';
 
+Navigation.init('nav-menu', 'user-info', 'logout', 'language-toggle');
+
+
 document.addEventListener('DOMContentLoaded', async () => {
   await userService.loadUsers();
   const user = userService.getLoggedInUser();
@@ -10,7 +13,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     return;
   }
 
-  Navigation.init('nav-menu', 'user-info', 'logout', 'language-toggle');
+  const language = localStorage.getItem('language') || 'en';
+
+
 
   const usersTab = document.getElementById('users-tab');
   const recipesTab = document.getElementById('recipes-tab');

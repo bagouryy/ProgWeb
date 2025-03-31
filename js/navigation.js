@@ -8,24 +8,51 @@ const Navigation = {
     const languageToggle = document.getElementById(languageToggleId);
 
     const updateNav = async () => {
-      const user = userService.getLoggedInUser();
-      if (!user) {
-        window.location.href = 'login.html';
-        return;
-      }
-
-      userInfo.textContent = user.username;
-
-      const lang = localStorage.getItem('language') || 'en';
-      const t = (en, fr) => lang === 'fr' ? fr : en;
-
-      navMenu.innerHTML = `
-        <a href="index.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Home', 'Accueil')}</a>
-        ${userService.isAdmin() ? `<a href="admin.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Admin', 'Admin')}</a>` : ''}
-        ${userService.isChef(user.username) ? `<a href="chef.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Submit Recipe', 'Soumettre Recette')}</a>` : ''}
-        ${userService.isTranslator(user.username) ? `<a href="translate.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Translate', 'Traduire')}</a>` : ''}
-      `;
+        const user = userService.getLoggedInUser();
+        if (!user) {
+          window.location.href = 'login.html';
+          return;
+        }
+      
+        userInfo.textContent = user.username;
+      
+        const lang = localStorage.getItem('language') || 'en';
+        const t = (en, fr) => lang === 'fr' ? fr : en;
+      
+        navMenu.innerHTML = `
+          <a href="index.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Home', 'Accueil')}</a>
+          ${userService.isAdmin(user.username) ? `<a href="admin.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Admin', 'Admin')}</a>` : ''}
+          ${userService.isChef(user.username) ? `<a href="chef.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Submit Recipe', 'Soumettre Recette')}</a>` : ''}
+          ${userService.isTranslator(user.username) ? `<a href="translate.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Translate', 'Traduire')}</a>` : ''}
+        `;
+      
+        // ✅ Fix: Highlight only after navMenu is populated
+        highlightCurrentPage();
     };
+
+    const highlightCurrentPage = () => {
+      const currentPath = window.location.pathname.split('/').pop();
+      const navLinks = navMenu.querySelectorAll('a');
+
+      console.log('Navigation: Current Path:', currentPath); // Debugging log
+      console.log('Navigation: Navigation Links:', navLinks); // Debugging log
+
+      navLinks.forEach(link => {
+        const href = link.getAttribute('href');
+        console.log('Navigation: Checking link:', href); // Debugging log
+        if (href && currentPath && href.split('?')[0] === currentPath.split('?')[0]) {
+          link.classList.add('bg-blue-900', 'text-white'); // Highlight class
+          console.log('Navigation: Highlighting link:', href); // Debugging log
+        } else {
+          link.classList.remove('bg-blue-900', 'text-white');
+        }
+      });
+    };
+
+    window.addEventListener('load', () => {
+      console.log('Highlighting current page on load'); // Debugging log
+      highlightCurrentPage();
+    });
 
     const applyLanguageToggle = () => {
       const currentLang = localStorage.getItem('language') || 'en';
@@ -34,6 +61,7 @@ const Navigation = {
       languageToggle.addEventListener('click', () => {
         const nextLang = currentLang === 'en' ? 'fr' : 'en';
         localStorage.setItem('language', nextLang);
+        location.reload();
         updateNav(); // Update navigation tabs to reflect the new language
         languageToggle.textContent = nextLang.toUpperCase();
       });

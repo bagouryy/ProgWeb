@@ -18,16 +18,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   const createCard = (recipe) => {
     const card = document.createElement('div');
     card.className = 'bg-white rounded-xl shadow-card p-4 hover:shadow-card-hover transition duration-200';
+
     const title = language === 'fr' && recipe.nameFR ? recipe.nameFR : recipe.name;
+
+    const image = recipe.imageURL
+      ? `<img src="${recipe.imageURL}" alt="${title}" class="w-full h-48 object-cover rounded-t-xl">`
+      : '';
+
     card.innerHTML = `
-      <h3 class="text-xl font-semibold">${title}</h3>
+      ${image}
+      <h3 class="text-xl font-semibold mt-4">${title}</h3>
       <p class="text-sm text-gray-600">Author: ${recipe.author || recipe.Author || 'Unknown'}</p>
     `;
+
     return card;
   };
 
   const filterAndRender = () => {
-    let filtered = [...recipes];
+    let filtered = recipes.filter(r => r.published); // Only include published recipes
 
     if (currentSearch) {
       filtered = filtered.filter(r => {
@@ -39,9 +47,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (activeFilters.size > 0) {
       filtered = filtered.filter(r => {
-        const dietary = r.dietary || {};
-        if (activeFilters.has('gluten-free') && !dietary.glutenFree) return false;
-        if (activeFilters.has('vegan') && !dietary.vegan) return false;
+        const without = r.Without || [];
+        if (activeFilters.has('gluten-free') && !without.includes('NoGluten')) return false;
+        if (activeFilters.has('vegan') && !without.includes('Vegan')) return false;
         if (activeFilters.has('translated') && !r.nameFR) return false;
         return true;
       });

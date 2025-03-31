@@ -3,8 +3,26 @@ import recipeService from './recipeService.js';
 import userService from './userService.js';
 import Navigation from './navigation.js';
 
-// Initialize navigation
-Navigation.init('nav-menu', 'user-info', 'logout', 'language-toggle');
+const translations = {
+  title: {
+    en: 'Translate Recipes',
+    fr: 'Traduire les Recettes'
+  },
+  filter: {
+    en: 'Filter:',
+    fr: 'Filtrer :'
+  }
+};
+
+function applyPageTranslations() {
+  const lang = localStorage.getItem('language') || 'en';
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.dataset.i18n;
+    if (translations[key] && translations[key][lang]) {
+      el.textContent = translations[key][lang];
+    }
+  });
+}
 
 function isFullyTranslated(recipe) {
   return recipe.nameFR && recipe.ingredientsFR?.length && recipe.stepsFR?.length;
@@ -23,6 +41,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const list = document.getElementById('translate-list');
   const filter = document.getElementById('lang-filter');
+  
+  const language = localStorage.getItem('language') || 'en';
+  Navigation.init('nav-menu', 'user-info', 'logout', 'language-toggle');
+
+  applyPageTranslations();
+
 
   const renderRecipeCard = (recipe) => {
     const card = document.createElement('div');

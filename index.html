@@ -127,30 +127,5 @@
     <footer class="bg-blue-700 text-white py-4 text-center">
         <p>&copy; 2025 Recipe Manager. All rights reserved.</p>
     </footer>
-
-    <script>
-        $(document).ready(function() {
-            // Load recipes from JSON file
-            $.getJSON('data/recipes.json', function(recipes) {
-                const recipesList = $('#recipes-list');
-                recipesList.empty(); // Clear existing content
-
-                recipes.forEach(recipe => {
-                    if (recipe.imageURL) {
-                        const recipeCard = `
-                            <div class="recipe-card bg-white rounded-lg shadow-card hover:shadow-card-hover overflow-hidden">
-                                <img src="${recipe.imageURL}" alt="${recipe.name}" class="w-full h-48 object-cover">
-                                <div class="p-4">
-                                    <h3 class="text-lg font-semibold text-gray-800">${recipe.name}</h3>
-                                    <p class="text-sm text-gray-600 mt-2">Author: ${recipe.Author || 'Unknown'}</p>
-                                </div>
-                            </div>
-                        `;
-                        recipesList.append(recipeCard);
-                    }
-                });
-            });
-        });
-    </script>
 </body>
 </html>

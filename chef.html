@@ -81,48 +81,6 @@
     <p>&copy; 2025 Recipe Manager. Tous droits réservés.</p>
   </footer>
 
-  <script type="module">
-    import userService from './js/userService.js';
-
-    const navMenu = document.getElementById('nav-menu');
-    const userInfo = document.getElementById('user-info');
-    const logoutButton = document.getElementById('logout');
-    const languageToggle = document.getElementById('language-toggle');
-
-    const updateNav = () => {
-      const user = userService.getLoggedInUser();
-      if (!user) {
-        window.location.href = 'login.html';
-        return;
-      }
-
-      userInfo.textContent = user.username;
-
-      navMenu.innerHTML = `
-        <a href="index.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Home</a>
-        ${userService.isAdmin(user.username) ? `<a href="admin.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Admin</a>` : ''}
-        ${userService.isChef(user.username) ? `<a href="chef.html" class="text-white px-3 py-2 rounded-md text-sm font-medium bg-blue-900">Submit Recipe</a>` : ''}
-        ${userService.isTranslator(user.username) ? `<a href="translate.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Translate</a>` : ''}
-      `;
-    };
-
-    logoutButton.addEventListener('click', e => {
-      e.preventDefault();
-      userService.logoutUser();
-      window.location.href = 'login.html';
-    });
-
-    // Language Toggle Init & Toggle
-    const currentLang = localStorage.getItem('language') || 'en';
-    languageToggle.textContent = currentLang === 'en' ? 'FR' : 'EN';
-    languageToggle.addEventListener('click', () => {
-      const next = currentLang === 'en' ? 'fr' : 'en';
-      localStorage.setItem('language', next);
-      location.reload();
-    });
-
-    window.addEventListener('userStateChanged', updateNav);
-    updateNav();
-  </script>
+  
 </body>
 </html>
