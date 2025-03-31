@@ -49,8 +49,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            const success = await userService.validateLogin(username, password);
-            if (success) {
+            const user = await userService.validateLogin(username, password);
+            if (user) {
+                localStorage.setItem('user', JSON.stringify(user)); // Store user in localStorage
                 window.location.href = 'index.html';
             } else {
                 showMessage('Invalid username or password');
@@ -78,7 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            await userService.registerUser(username, password, requestedRoles);
+            const user = await userService.registerUser(username, password, requestedRoles);
+            localStorage.setItem('user', JSON.stringify(user)); // Store user in localStorage
             showMessage('Registration successful! Please log in.', false);
             switchTab(true);
         } catch (error) {

@@ -198,6 +198,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Check user permissions for edit/delete buttons
+    await userService.loadUsers();
     const user = userService.getLoggedInUser();
     if (user) {
         const canEdit = user.roles.includes('Chef') && recipe?.author === user.username;

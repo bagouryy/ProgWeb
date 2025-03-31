@@ -1,121 +1,89 @@
 class RecipeService {
     constructor() {
       this.recipes = [];
-      this.loadRecipes();
     }
-  
+
     async loadRecipes() {
       try {
         const response = await $.getJSON('/data/recipes.json');
-        const baseRecipes = response.map(r => ({
-          ...r,
-          source: 'base'
-        }));
-        const localRecipes = JSON.parse(localStorage.getItem('localRecipes') || '[]');
-        const enrichedLocal = localRecipes.map(r => ({
-          ...r,
-          source: 'local'
-        }));
-        this.recipes = [...baseRecipes, ...enrichedLocal];
+        this.recipes = response;
       } catch (error) {
         console.error('Error loading recipes:', error);
         this.recipes = [];
       }
     }
-  
+
     async ensureRecipesLoaded() {
-      if (this.recipes.length === 0) {
-        await this.loadRecipes();
-      }
+        if (this.recipes.length === 0) {
+            await this.loadRecipes();
+        }
     }
-  
+
     async getAllRecipes() {
-      await this.ensureRecipesLoaded();
+      await this.loadRecipes();
       return this.recipes;
     }
-  
-    async getRecipeById(id) {
-      await this.ensureRecipesLoaded();
-      return this.recipes.find(recipe => recipe.id === id);
-    }
-  
+
+
     async saveRecipe(recipe) {
-      await this.ensureRecipesLoaded();
-      if (!recipe.id) {
-        recipe.id = Date.now().toString();
-      }
-  
-      const localRecipes = JSON.parse(localStorage.getItem('localRecipes') || '[]');
-      const index = localRecipes.findIndex(r => r.id === recipe.id);
-  
-      if (index >= 0) {
-        localRecipes[index] = recipe;
-      } else {
-        localRecipes.push(recipe);
-      }
-  
-      localStorage.setItem('localRecipes', JSON.stringify(localRecipes));
-  
-      const memoryIndex = this.recipes.findIndex(r => r.id === recipe.id);
-      if (memoryIndex >= 0) {
-        this.recipes[memoryIndex] = recipe;
-      } else {
-        this.recipes.push({ ...recipe, source: 'local' });
-      }
-  
       try {
-        await $.ajax({
+        const response = await $.ajax({
           url: '/api/recipes',
           method: 'POST',
           contentType: 'application/json',
           data: JSON.stringify(recipe)
         });
+        return response;
       } catch (error) {
-        console.warn('Could not persist recipe to JSON file:', error);
+        console.error('Error saving recipe:', error);
+        throw error;
       }
-  
-      return recipe;
     }
-  
-    async updateRecipeStatus(id, published) {
-      const recipe = await this.getRecipeById(id);
+
+    async updateRecipeStatus(name, published) {
+      const recipe = await this.getRecipeByName(name);
       if (recipe) {
         recipe.published = published;
-        await this.saveRecipe(recipe);
+        await this.updateRecipe(recipe);
         return true;
       }
       return false;
     }
-  
-    async deleteRecipe(id) {
-      const localRecipes = JSON.parse(localStorage.getItem('localRecipes') || '[]');
-      const updated = localRecipes.filter(r => r.id !== id);
-      localStorage.setItem('localRecipes', JSON.stringify(updated));
-      this.recipes = this.recipes.filter(r => r.id !== id || r.source !== 'local');
-      return true;
-    }
-  
-    async saveTranslation(recipeId, translatedFields, language) {
-      const recipe = await this.getRecipeById(recipeId);
-      if (!recipe) return false;
-  
-      const updated = { ...recipe };
-  
-      if (language === 'fr') {
-        if (!updated.nameFR && translatedFields.name) updated.nameFR = translatedFields.name;
-        if (!updated.ingredientsFR && translatedFields.ingredients) updated.ingredientsFR = translatedFields.ingredients;
-        if (!updated.stepsFR && translatedFields.steps) updated.stepsFR = translatedFields.steps;
-      } else {
-        if (!updated.name && translatedFields.name) updated.name = translatedFields.name;
-        if (!updated.ingredients && translatedFields.ingredients) updated.ingredients = translatedFields.ingredients;
-        if (!updated.steps && translatedFields.steps) updated.steps = translatedFields.steps;
+
+    async updateRecipe(recipe) {
+      try {
+        const response = await $.ajax({
+          url: `/api/recipes/${encodeURIComponent(recipe.name)}`,
+          method: 'PUT',
+          contentType: 'application/json',
+          data: JSON.stringify(recipe)
+        });
+        return response;
+      } catch (error) {
+        console.error('Error updating recipe:', error);
+        throw error;
       }
-  
-      await this.saveRecipe(updated);
-      return true;
     }
-  }
-  
-  const recipeService = new RecipeService();
-  export default recipeService;
-  
+
+
+    async deleteRecipe(name) {
+      try {
+        await $.ajax({
+          url: `/api/recipes/${encodeURIComponent(recipe.name)}`,
+          method: 'DELETE'
+        });
+        return true;
+      } catch (error) {
+        console.error('Error deleting recipe:', error);
+        throw error;
+      }
+    }
+    
+    async getRecipeByName(name) {
+        await this.loadRecipes();
+        return this.recipes.find(r => r.name === name);
+    }
+}
+
+const recipeService = new RecipeService();
+export default recipeService;

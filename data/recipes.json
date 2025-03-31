@@ -662,7 +662,7 @@
       "glutenFree": false,
       "vegan": false
     },
-    "published": false,
+    "published": true,
     "id": "1743202396693"
   },
   {
@@ -748,6 +748,58 @@
     "imageURL": "http://img.sndimg.com/food/image/upload/w_266/v1/img/recipes/27/20/8/picVfzLZo.jpg",
     "originalURL": "http://www.food.com/recipe/to-die-for-crock-pot-roast-27208",
     "id": "1743206418988",
+    "published": true
+  },
+  {
+    "author": "admin",
+    "name": "Tests",
+    "ingredients": [
+      {
+        "name": "test",
+        "quantity": null,
+        "type": "Misc"
+      },
+      {
+        "name": "test",
+        "quantity": null,
+        "type": "Misc"
+      }
+    ],
+    "steps": [
+      "test",
+      "test"
+    ],
+    "images": [],
+    "dietary": {
+      "glutenFree": false,
+      "vegan": false
+    },
+    "published": true,
+    "id": "1743202396693"
+  },
+  {
+    "author": "admin",
+    "name": "Testing",
+    "without": [
+      "Vegan"
+    ],
+    "ingredients": [
+      {
+        "quantity": "hello",
+        "name": "helo",
+        "type": "hel"
+      }
+    ],
+    "steps": [
+      "the",
+      "ethi"
+    ],
+    "timers": [
+      2,
+      0
+    ],
+    "imageURL": "https://fajn.com",
+    "originalURL": "https://fajn.com",
     "published": true
   }
 ]

@@ -1,5 +1,6 @@
 import recipeService from './recipeService.js';
 import userService from './userService.js';
+import Navigation from './navigation.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
   const recipesList = document.getElementById('recipes-list');
@@ -7,10 +8,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const filterButtons = document.querySelectorAll('.filter-btn');
   const clearFiltersBtn = document.getElementById('clear-filters');
   const sortSelect = document.getElementById('sort-recipes');
-  const languageToggle = document.getElementById('language-toggle');
-  const navMenu = document.getElementById('nav-menu');
-  const userInfo = document.getElementById('user-info');
-  const logoutButton = document.getElementById('logout');
 
   let activeFilters = new Set();
   let currentSearch = '';
@@ -95,35 +92,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     filterAndRender();
   });
 
-  languageToggle?.addEventListener('click', () => {
-    language = language === 'en' ? 'fr' : 'en';
-    localStorage.setItem('language', language);
-    languageToggle.textContent = language === 'en' ? 'FR' : 'EN';
-    filterAndRender();
-  });
+  // Initialize navigation
+  Navigation.init('nav-menu', 'user-info', 'logout', 'language-toggle');
 
-  logoutButton?.addEventListener('click', () => {
-    userService.logoutUser();
-    window.location.href = 'login.html';
-  });
-
-  window.addEventListener('userStateChanged', (e) => {
-    const user = e.detail;
-    if (!user) return (window.location.href = 'login.html');
-    userInfo.textContent = user.username;
-    navMenu.innerHTML = `
-      <a href="index.html" class="text-white px-3 py-2">Home</a>
-      ${userService.isAdmin(user.username) ? '<a href="admin.html" class="text-white px-3 py-2">Admin</a>' : ''}
-      ${userService.isChef(user.username) ? '<a href="chef.html" class="text-white px-3 py-2">Submit Recipe</a>' : ''}
-      ${userService.isTranslator(user.username) ? '<a href="translate.html" class="text-white px-3 py-2">Translate</a>' : ''}
-    `;
-  });
-
+  await userService.loadUsers();
   const user = userService.getLoggedInUser();
   if (!user) {
     return (window.location.href = 'login.html');
   }
-  userInfo.textContent = user.username;
   window.dispatchEvent(new CustomEvent('userStateChanged', { detail: user }));
 
   await recipeService.ensureRecipesLoaded();

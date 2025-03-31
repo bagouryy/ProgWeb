@@ -2,7 +2,6 @@
 class UserService {
     constructor() {
       this.users = [];
-      this.loadUsers();
     }
   
     async loadUsers() {
@@ -10,7 +9,7 @@ class UserService {
         const response = await $.getJSON('/data/users.json');
         this.users = response;
       } catch (error) {
-        console.error('Error loading users from server:', error);
+        console.error('Error loading users:', error);
         this.users = [];
       }
     }
@@ -22,50 +21,37 @@ class UserService {
     }
   
     async getUserByUsername(username) {
-      await this.ensureUsersLoaded();
-      return this.users.find(user => user.username === username);
+      await this.loadUsers();
+      return this.users.find(u => u.username === username);
     }
   
     async validateLogin(username, password) {
       const user = await this.getUserByUsername(username);
       if (user && user.password === password) {
-        const { password: _, ...safeUser } = user;
-        this.setLoggedInUser(safeUser);
+        this.setLoggedInUser(user); // Add this to store session
         return true;
       }
       return false;
     }
   
     async registerUser(username, password, requestedRoles = []) {
-      await this.ensureUsersLoaded();
-      if (!username || !password) throw new Error('Username and password are required');
-      if (this.users.some(user => user.username === username)) throw new Error('Username already exists');
-  
-      const newUser = {
-        username,
-        password,
-        roles: [],
-        requestedRoles
-      };
-  
+      const newUser = { username, password, roles: [], requestedRoles };
       try {
-        await $.ajax({
+        const response = await $.ajax({
           url: '/api/users',
           method: 'POST',
           contentType: 'application/json',
           data: JSON.stringify(newUser)
         });
-        this.users.push(newUser);
+        return response;
       } catch (error) {
-        console.error('Failed to save user to server:', error);
+        console.error('Registration failed:', error);
+        throw error;
       }
-  
-      return newUser;
     }
   
     async promoteUser(username, newRole) {
-      await this.ensureUsersLoaded();
-      const user = this.users.find(u => u.username === username);
+      const user = await this.getUserByUsername(username);
       if (!user) throw new Error('User not found');
   
       if (!user.roles.includes(newRole)) {
@@ -73,25 +59,37 @@ class UserService {
         user.requestedRoles = user.requestedRoles.filter(r => r !== newRole);
   
         try {
-          await $.ajax({
-            url: '/api/users',
-            method: 'POST',
+          const response = await $.ajax({
+            url: `/api/users/${encodeURIComponent(username)}`,
+            method: 'PUT',
             contentType: 'application/json',
             data: JSON.stringify(user)
           });
-        } catch (error) {
-          console.warn('Could not update user to server:', error);
-        }
-  
-        const currentUser = this.getLoggedInUser();
-        if (currentUser?.username === username) {
-          const { password: _, ...safeUser } = user;
-          this.setLoggedInUser(safeUser);
+          return response;
+        } catch (err) {
+          console.error('Promotion failed:', err);
+          throw err;
         }
       }
   
       return user;
     }
+
+    async updateUser(user) {
+        try {
+          const response = await $.ajax({
+            url: `/api/users/${encodeURIComponent(user.username)}`,
+            method: 'PUT',
+            contentType: 'application/json',
+            data: JSON.stringify(user)
+          });
+          return response;
+        } catch (err) {
+          console.error('User update failed:', err);
+          throw err;
+        }
+      }
+      
   
     setLoggedInUser(user) {
       localStorage.setItem('user', JSON.stringify(user));
@@ -103,41 +101,22 @@ class UserService {
       return userJson ? JSON.parse(userJson) : null;
     }
   
-    logoutUser() {
-      localStorage.removeItem('user');
-      window.dispatchEvent(new CustomEvent('userStateChanged', { detail: null }));
-    }
-  
-    hasRole(username, role) {
-      const sessionUser = this.getLoggedInUser();
-      if (sessionUser?.username === username) {
-        return sessionUser.roles.includes(role);
-      }
-  
-      const user = this.users.find(u => u.username === username);
-      return user?.roles.includes(role);
-    }
-  
-    isAdmin(username) {
-      return this.hasRole(username, 'Admin');
+    isAdmin() {
+      const user = this.getLoggedInUser();
+      return user?.roles.includes('Admin');
     }
   
     isChef(username) {
-      return this.hasRole(username, 'Chef');
+      const user = this.getLoggedInUser();
+      return user?.roles.includes('Chef');
     }
   
     isTranslator(username) {
-      return this.hasRole(username, 'Traducteur');
-    }
-  
-    isPartiallyTranslated(recipe) {
-      return Boolean(recipe.nameFR || recipe.ingredientsFR?.length || recipe.stepsFR?.length);
-    }
-  
-    isFullyTranslated(recipe) {
-      return Boolean(recipe.nameFR && recipe.ingredientsFR?.length && recipe.stepsFR?.length);
+      const user = this.getLoggedInUser();
+      return user?.roles.includes('Traducteur');
     }
   }
   
   const userService = new UserService();
   export default userService;
+  

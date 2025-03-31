@@ -1,6 +1,10 @@
 // js/translate.js
 import recipeService from './recipeService.js';
 import userService from './userService.js';
+import Navigation from './navigation.js';
+
+// Initialize navigation
+Navigation.init('nav-menu', 'user-info', 'logout', 'language-toggle');
 
 function isFullyTranslated(recipe) {
   return recipe.nameFR && recipe.ingredientsFR?.length && recipe.stepsFR?.length;
@@ -11,6 +15,7 @@ function isPartiallyTranslated(recipe) {
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
+  await userService.loadUsers();
   const user = userService.getLoggedInUser();
   if (!user || !userService.isTranslator(user.username)) {
     return window.location.href = 'login.html';

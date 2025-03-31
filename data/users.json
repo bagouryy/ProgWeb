@@ -42,5 +42,13 @@
       "Traducteur"
     ],
     "requestedRoles": []
+  },
+  {
+    "username": "wantchef",
+    "password": "1234",
+    "roles": [
+      "Traducteur"
+    ],
+    "requestedRoles": []
   }
 ]

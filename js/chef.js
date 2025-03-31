@@ -1,7 +1,12 @@
 import userService from './userService.js';
 import recipeService from './recipeService.js';
+import Navigation from './navigation.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+// Initialize navigation
+Navigation.init('nav-menu', 'user-info', 'logout', 'language-toggle');
+
+document.addEventListener('DOMContentLoaded', async () => {
+  await userService.loadUsers();
   const user = userService.getLoggedInUser();
   if (!user || !userService.isChef(user.username)) {
     return window.location.href = 'login.html';
