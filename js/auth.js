@@ -80,9 +80,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             const user = await userService.registerUser(username, password, requestedRoles);
-            localStorage.setItem('user', JSON.stringify(user)); // Store user in localStorage
-            showMessage('Registration successful! Please log in.', false);
-            switchTab(true);
+            localStorage.setItem('user', JSON.stringify(user));
+            window.location.href = 'index.html'; 
         } catch (error) {
             showMessage(error.message || 'Registration failed');
         }
