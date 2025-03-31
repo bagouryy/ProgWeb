@@ -8,7 +8,7 @@ Navigation.init('nav-menu', 'user-info', 'logout', 'language-toggle');
 document.addEventListener('DOMContentLoaded', async () => {
   await userService.loadUsers();
   const user = userService.getLoggedInUser();
-  if (!user || !userService.isAdmin(user.username)) {
+  if (!user || !userService.isAdmin()) {
     document.body.innerHTML = `<div class="text-center text-red-700 font-bold mt-10">Access denied. Admin only.</div>`;
     return;
   }

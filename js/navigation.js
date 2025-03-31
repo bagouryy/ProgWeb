@@ -21,7 +21,7 @@ const Navigation = {
       
         navMenu.innerHTML = `
           <a href="index.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Home', 'Accueil')}</a>
-          ${userService.isAdmin(user.username) ? `<a href="admin.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Admin', 'Admin')}</a>` : ''}
+          ${userService.isAdmin() ? `<a href="admin.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Admin', 'Admin')}</a>` : ''}
           ${userService.isChef(user.username) ? `<a href="chef.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Submit Recipe', 'Soumettre Recette')}</a>` : ''}
           ${userService.isTranslator(user.username) ? `<a href="translate.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Translate', 'Traduire')}</a>` : ''}
         `;

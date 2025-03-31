@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const createCard = (recipe) => {
     const card = document.createElement('div');
-    card.className = 'bg-white rounded-xl shadow-card p-4 hover:shadow-card-hover transition duration-200';
+    card.className = 'bg-white rounded-xl shadow-card p-4 hover:shadow-card-hover transition duration-200 cursor-pointer';
 
     const title = language === 'fr' && recipe.nameFR ? recipe.nameFR : recipe.name;
 
@@ -31,7 +31,46 @@ document.addEventListener('DOMContentLoaded', async () => {
       <p class="text-sm text-gray-600">Author: ${recipe.author || recipe.Author || 'Unknown'}</p>
     `;
 
+    card.addEventListener('click', () => {
+      showRecipeModal(recipe);
+    });
+
     return card;
+  };
+
+  const showRecipeModal = (recipe) => {
+    const modal = document.createElement('div');
+    modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
+
+    const modalContent = document.createElement('div');
+    modalContent.className = 'bg-white rounded-lg shadow-lg p-6 max-w-2xl w-full';
+
+    const title = language === 'fr' && recipe.nameFR ? recipe.nameFR : recipe.name;
+
+    const image = recipe.imageURL
+      ? `<img src="${recipe.imageURL}" alt="${title}" class="w-full h-64 object-cover rounded-lg mb-4">`
+      : '';
+
+    const ingredients = recipe.ingredients.map(ing => `<li>${ing.quantity} ${ing.name} (${ing.type})</li>`).join('');
+    const steps = recipe.steps.map((step, index) => `<li>${index + 1}. ${step}</li>`).join('');
+
+    modalContent.innerHTML = `
+      ${image}
+      <h2 class="text-2xl font-bold mb-4">${title}</h2>
+      <p class="text-sm text-gray-600 mb-4">Author: ${recipe.author || recipe.Author || 'Unknown'}</p>
+      <h3 class="text-lg font-semibold mb-2">Ingredients:</h3>
+      <ul class="list-disc list-inside mb-4">${ingredients}</ul>
+      <h3 class="text-lg font-semibold mb-2">Steps:</h3>
+      <ol class="list-decimal list-inside">${steps}</ol>
+      <button id="close-modal" class="mt-4 bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded">Close</button>
+    `;
+
+    modal.appendChild(modalContent);
+    document.body.appendChild(modal);
+
+    document.getElementById('close-modal').addEventListener('click', () => {
+      modal.remove();
+    });
   };
 
   const filterAndRender = () => {
