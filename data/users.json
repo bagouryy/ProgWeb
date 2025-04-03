@@ -7,13 +7,17 @@
       "Chef",
       "Traducteur"
     ],
-    "requestedRole": null
+    "requestedRole": null,
+    "likedPosts": [
+      "8"
+    ]
   },
   {
     "username": "chefjoe",
     "password": "joepass",
     "roles": [
-      "Chef"
+      "Chef",
+      "Traducteur"
     ],
     "requestedRole": null
   },
@@ -54,9 +58,9 @@
   {
     "username": "testing",
     "password": "test",
-    "roles": [],
-    "requestedRoles": [
+    "roles": [
       "Chef"
-    ]
+    ],
+    "requestedRoles": []
   }
 ]

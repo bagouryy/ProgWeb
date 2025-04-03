@@ -15,6 +15,21 @@ document.addEventListener('DOMContentLoaded', async () => {
   let language = localStorage.getItem('language') || 'en';
   let recipes = [];
 
+  Navigation.init('nav-menu', 'user-info', 'logout', 'language-toggle');
+
+  await userService.loadUsers();
+  const user = await userService.getLoggedInUser();
+  if (!user) return (window.location.href = 'login.html');
+  window.dispatchEvent(new CustomEvent('userStateChanged', { detail: user }));
+
+  await recipeService.ensureRecipesLoaded();
+  recipes = await recipeService.getAllRecipes();
+
+  const likedPosts = user?.likedPosts || [];
+  recipes.forEach(recipe => {
+    recipe.liked = likedPosts.includes(recipe.id);
+  });
+
   const createCard = (recipe) => {
     const card = document.createElement('div');
     card.className = 'bg-white rounded-xl shadow-card p-4 hover:shadow-card-hover transition duration-200 relative';
@@ -25,49 +40,37 @@ document.addEventListener('DOMContentLoaded', async () => {
       ? `<img src="${recipe.imageURL}" alt="${title}" class="w-full h-48 object-cover rounded-t-xl">`
       : '';
 
-    const user = userService.getLoggedInUser();
-    const alreadyLiked = user?.likedPosts?.includes(recipe.id);
+    console.log(user, recipe.liked);
 
     card.innerHTML = `
       ${image}
       <h3 class="text-xl font-semibold mt-4">${title}</h3>
       <p class="text-sm text-gray-600">Author: ${recipe.author || recipe.Author || 'Unknown'}</p>
       <p class="text-sm text-gray-600">Likes: <span class="likes-count">${recipe.likes || 0}</span></p>
-      <button class="like-btn absolute bottom-4 right-4 bg-transparent text-red-500 hover:text-red-600" ${alreadyLiked ? 'disabled' : ''}>
-        <svg xmlns="http://www.w3.org/2000/svg" fill="${alreadyLiked ? 'currentColor' : 'none'}" viewBox="0 0 24 24" stroke="currentColor" class="w-6 h-6">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 
-            4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 
-            14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 
-            3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+      <button class="like-btn absolute bottom-4 right-4">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="${recipe.liked ? 'currentColor' : 'none'}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-6 h-6 transition duration-200">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6.01 4.01 4 6.5 4c1.74 0 3.41 1.01 4.5 2.09C12.09 5.01 13.76 4 15.5 4 17.99 4 20 6.01 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
       </button>
     `;
-    
 
-    card.querySelector('.like-btn').addEventListener('click', async (e) => {
-      e.stopPropagation(); // Prevent opening the modal
+    const likeButton = card.querySelector('.like-btn');
+    likeButton.addEventListener('click', async (e) => {
+      e.stopPropagation();
       try {
-        let updatedRecipe = null;
-        if (recipe.liked) {
-            updatedRecipe = await recipeService.removeLike(recipe.id);
-        }else {
-            updatedRecipe = await recipeService.addLike(recipe.id);
-        }
-        recipe.likes = updatedRecipe.likes;
-        recipe.liked = !recipe.liked; // Toggle liked state
-        const likesCount = card.querySelector('.likes-count');
-        likesCount.textContent = recipe.likes;
-        const likeIcon = card.querySelector('.like-btn svg');
-        likeIcon.setAttribute('fill', recipe.liked ? 'currentColor' : 'none');
-      } catch (error) {
-        console.error('Error liking recipe:', error);
+        const response = await userService.toggleLike(user.username, recipe.id);
+        recipe.likes = response.recipe.likes;
+        recipe.liked = response.likedPosts.includes(recipe.id);
+
+        card.querySelector('.likes-count').textContent = recipe.likes;
+        const heartIcon = card.querySelector('.like-btn svg');
+        heartIcon.setAttribute('fill', recipe.liked ? 'currentColor' : 'none');
+      } catch (err) {
+        console.error('Error toggling like:', err);
       }
     });
 
-    card.addEventListener('click', () => {
-      showRecipeModal(recipe);
-    });
-
+    card.addEventListener('click', () => showRecipeModal(recipe));
     return card;
   };
 
@@ -164,7 +167,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   const filterAndRender = () => {
-    let filtered = recipes.filter(r => r.published); // Only include published recipes
+    let filtered = recipes.filter(r => r.published);
 
     if (currentSearch) {
       filtered = filtered.filter(r => {
@@ -184,13 +187,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    switch (currentSort) {
-      case 'name-asc':
-        filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-        break;
-      case 'name-desc':
-        filtered.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
-        break;
+    if (currentSort === 'name-asc') {
+      filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    } else if (currentSort === 'name-desc') {
+      filtered.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
     }
 
     recipesList.innerHTML = '';
@@ -229,17 +229,5 @@ document.addEventListener('DOMContentLoaded', async () => {
     filterAndRender();
   });
 
-  // Initialize navigation
-  Navigation.init('nav-menu', 'user-info', 'logout', 'language-toggle');
-
-  await userService.loadUsers();
-  const user = userService.getLoggedInUser();
-  if (!user) {
-    return (window.location.href = 'login.html');
-  }
-  window.dispatchEvent(new CustomEvent('userStateChanged', { detail: user }));
-
-  await recipeService.ensureRecipesLoaded();
-  recipes = await recipeService.getAllRecipes();
   filterAndRender();
 });

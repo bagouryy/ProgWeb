@@ -90,6 +90,20 @@ class UserService {
         }
       }
       
+      async toggleLike(userId, recipeId) {
+        try {
+          const response = await $.ajax({
+            url: `/api/users/${encodeURIComponent(userId)}/likes`,
+            method: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ recipeId })
+          });
+          return response; // returns { likedPosts, recipe }
+        } catch (err) {
+          console.error('Error toggling like:', err);
+          throw err;
+        }
+      }
   
     setLoggedInUser(user) {
       localStorage.setItem('user', JSON.stringify(user));

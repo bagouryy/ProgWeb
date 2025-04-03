@@ -40,8 +40,8 @@ class RecipeService {
       }
     }
 
-    async updateRecipeStatus(name, published) {
-      const recipe = await this.getRecipeByName(name);
+    async updateRecipeStatus(id, published) {
+      const recipe = await this.getRecipeById(id);
       if (recipe) {
         recipe.published = published;
         await this.updateRecipe(recipe);
@@ -79,9 +79,52 @@ class RecipeService {
       }
     }
     
-    async getRecipeByName(name) {
-        await this.loadRecipes();
-        return this.recipes.find(r => r.name === name);
+    async getRecipeById(id) {
+      await this.loadRecipes();
+      console.log('Fetching recipe with ID:', id);
+      console.log('Available recipes:', this.recipes);
+      return this.recipes.find(recipe => recipe.id === id);
+    }
+
+    async addLike(recipeId) {
+      try {
+        const response = await $.ajax({
+          url: `/api/recipes/${recipeId}/like`,
+          method: 'POST'
+        });
+        return response;
+      } catch (error) {
+        console.error('Error adding like:', error);
+        throw error;
+      }
+    }
+
+    async removeLike(recipeId) {
+        try {
+          const response = await $.ajax({
+            url: `/api/recipes/${recipeId}/like`,
+            method: 'PUT'
+          });
+          return response;
+        } catch (error) {
+          console.error('Error adding like:', error);
+          throw error;
+        }
+      }
+
+    async addComment(recipeId, comment) {
+      try {
+        const response = await $.ajax({
+          url: `/api/recipes/${recipeId}/comment`,
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ comment })
+        });
+        return response;
+      } catch (error) {
+        console.error('Error adding comment:', error);
+        throw error;
+      }
     }
 }
 
