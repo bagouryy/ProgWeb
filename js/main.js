@@ -127,11 +127,27 @@ document.addEventListener('DOMContentLoaded', async () => {
         <textarea id="comment-text" placeholder="Your comment" class="w-full p-2 border rounded" rows="3" required></textarea>
         <button type="submit" class="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded">Submit Comment</button>
       </form>
+      <button id="unpublish-recipe" class="mt-4 bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded">Unpublish</button>
       <button id="close-modal" class="mt-4 bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded">Close</button>
     `;
 
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
+
+    document.getElementById('unpublish-recipe').addEventListener('click', async () => {
+      const unpublishButton = document.getElementById('unpublish-recipe');
+      try {
+        await recipeService.updateRecipeStatus(recipe.id, false);
+        unpublishButton.textContent = 'Unpublished';
+        unpublishButton.disabled = true;
+        setTimeout(() => {
+          window.location.href = 'index.html';
+        }, 1000); // Redirect to home after 1 second
+      } catch (error) {
+        console.error('Error unpublishing recipe:', error);
+        unpublishButton.textContent = 'Failed to Unpublish';
+      }
+    });
 
     document.getElementById('comment-form').addEventListener('submit', async (e) => {
       e.preventDefault();
