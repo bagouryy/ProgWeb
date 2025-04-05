@@ -24,23 +24,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   await recipeService.ensureRecipesLoaded();
   recipes = await recipeService.getAllRecipes();
-
   const fullUser = await userService.getUserByUsername(user.username);
-recipes.forEach(recipe => {
-  recipe.liked = fullUser?.likedPosts?.includes(recipe.id);
-});
+  recipes.forEach(recipe => {
+    recipe.liked = fullUser?.likedPosts?.includes(recipe.id);
+  });
 
   const createCard = (recipe) => {
     const card = document.createElement('div');
     card.className = 'bg-white rounded-xl shadow-card p-4 hover:shadow-card-hover transition duration-200 relative';
 
     const title = language === 'fr' && recipe.nameFR ? recipe.nameFR : recipe.name;
-
     const image = recipe.imageURL
-  ? `<img src="${recipe.imageURL}" alt="${title}" class="w-full h-48 object-cover rounded-t-xl">`
-  : `<div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-t-xl text-gray-500 text-sm italic">No Image</div>`;
-
-    console.log(user, recipe.liked);
+      ? `<img src="${recipe.imageURL}" alt="${title}" class="w-full h-48 object-cover rounded-t-xl">`
+      : `<div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-t-xl text-gray-500 text-sm italic">No Image</div>`;
 
     card.innerHTML = `
       ${image}
@@ -49,7 +45,7 @@ recipes.forEach(recipe => {
       <p class="text-sm text-gray-600">Likes: <span class="likes-count">${recipe.likes || 0}</span></p>
       <p class="text-sm text-gray-600">Comments: <span class="comments-count">${recipe.comments?.length || 0}</span></p>
       <button class="like-btn absolute bottom-4 right-4">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="${recipe.liked ? 'red' : 'none'}" stroke="${recipe.liked ? 'red' : 'currentColor'}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-6 h-6 transition duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="${recipe.liked ? 'red' : 'none'}" stroke="${recipe.liked ? 'red' : 'currentColor'}" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6 transition duration-200">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6.01 4.01 4 6.5 4c1.74 0 3.41 1.01 4.5 2.09C12.09 5.01 13.76 4 15.5 4 17.99 4 20 6.01 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
       </button>
@@ -77,11 +73,7 @@ recipes.forEach(recipe => {
   };
 
   const showRecipeModal = (recipe) => {
-    if (!recipe) {
-      console.error('showRecipeModal: Recipe is undefined');
-      alert('Error: Recipe not found');
-      return;
-    }
+    if (!recipe) return alert('Error: Recipe not found');
 
     const modal = document.createElement('div');
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
@@ -98,24 +90,20 @@ recipes.forEach(recipe => {
 
     const ingredients = (lang === 'fr' && recipe.ingredientsFR)
       ? recipe.ingredientsFR.map(ing => `<li>${ing.quantity} ${ing.name} (${ing.type})</li>`).join('')
-      : recipe.ingredients?.map(ing => `<li>${ing.quantity} ${ing.name} (${ing.type})</li>`).join('') || '<p class="text-sm text-red-500">No Ingredients Available</p>';
+      : recipe.ingredients?.map(ing => `<li>${ing.quantity} ${ing.name} (${ing.type})</li>`).join('') || '<p>No Ingredients</p>';
 
     const steps = (lang === 'fr' && recipe.stepsFR)
-      ? recipe.stepsFR.map((step, index) => {
-        const timer = recipe.timers && recipe.timers[index] && recipe.timers[index] !== 0 ? ` ~ ${recipe.timers[index]} mins` : '';
-        return `<li>${step}${timer}</li>`;
-      }).join('')
-      : recipe.steps?.map((step, index) => {
-        const timer = recipe.timers && recipe.timers[index] && recipe.timers[index] !== 0 ? ` ~ ${recipe.timers[index]} mins` : '';
-        return `<li>${step}${timer}</li>`;
-      }).join('') || '<p class="text-sm text-red-500">No Steps Available</p>';
+      ? recipe.stepsFR.map((step, i) => `<li>${step}${recipe.timers?.[i] ? ` ~ ${recipe.timers[i]} mins` : ''}</li>`).join('')
+      : recipe.steps?.map((step, i) => `<li>${step}${recipe.timers?.[i] ? ` ~ ${recipe.timers[i]} mins` : ''}</li>`).join('') || '<p>No Steps</p>';
 
-
-    const comments = recipe.comments?.map(comment => `<p><strong>${comment.name}:</strong> ${comment.text}</p>`).join('') || '<p class="text-sm text-gray-500">No comments yet.</p>';
+    const comments = recipe.comments?.map(comment => `<p><strong>${comment.name}:</strong> ${comment.text}</p>`).join('') || '<p>No comments yet.</p>';
 
     modalContent.innerHTML = `
+      <div class="flex justify-between items-center mb-4">
+        <h2 class="text-2xl font-bold">${title}</h2>
+        <button id="close-modal-top" class="text-gray-500 hover:text-red-500 text-2xl font-bold">&times;</button>
+      </div>
       ${image}
-      <h2 class="text-2xl font-bold mb-4">${title}</h2>
       <p class="text-sm text-gray-600 mb-4">Author: ${recipe.author || recipe.Author || 'Unknown'}</p>
       <h3 class="text-lg font-semibold mb-2">Ingredients:</h3>
       <ul class="list-disc list-inside mb-4">${ingredients}</ul>
@@ -129,59 +117,46 @@ recipes.forEach(recipe => {
         <textarea id="comment-text" placeholder="Your comment" class="w-full p-2 border rounded" rows="3" required></textarea>
         <button type="submit" class="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded">Submit Comment</button>
       </form>
-      <button id="unpublish-recipe" class="mt-4 bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded">Unpublish</button>
+      ${userService.isAdmin(user) ? `<button id="unpublish-recipe" class="mt-4 bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded">Unpublish</button>` : ''}
       <button id="close-modal" class="mt-4 bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded">Close</button>
     `;
 
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
 
-    document.getElementById('unpublish-recipe').addEventListener('click', async () => {
-      const unpublishButton = document.getElementById('unpublish-recipe');
-      try {
-        await recipeService.updateRecipeStatus(recipe.id, false);
-        unpublishButton.textContent = 'Unpublished';
-        unpublishButton.disabled = true;
-        setTimeout(() => {
-          window.location.href = 'index.html';
-        }, 1000); // Redirect to home after 1 second
-      } catch (error) {
-        console.error('Error unpublishing recipe:', error);
-        unpublishButton.textContent = 'Failed to Unpublish';
-      }
-    });
+    document.getElementById('close-modal').addEventListener('click', () => modal.remove());
+    document.getElementById('close-modal-top').addEventListener('click', () => modal.remove());
 
     document.getElementById('comment-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = document.getElementById('comment-name').value.trim();
       const text = document.getElementById('comment-text').value.trim();
-
       if (name && text) {
         try {
           const updatedRecipe = await recipeService.addComment(recipe.id, { name, text });
           recipe.comments = updatedRecipe.comments;
-          const commentsSection = document.getElementById('comments-section');
-          commentsSection.innerHTML = recipe.comments.map(comment => `<p><strong>${comment.name}:</strong> ${comment.text}</p>`).join('');
+          document.getElementById('comments-section').innerHTML = recipe.comments.map(c => `<p><strong>${c.name}:</strong> ${c.text}</p>`).join('');
           document.getElementById('comment-form').reset();
-        } catch (error) {
-          console.error('Error adding comment:', error);
+        } catch (err) {
+          console.error('Error adding comment:', err);
         }
       }
     });
 
-    const closeModal = () => {
-      modal.remove();
-    };
-
-    modal.addEventListener('click', (e) => {
-      if (e.target === modal) closeModal();
-    });
-
-    document.getElementById('close-modal').addEventListener('click', closeModal);
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
-    }, { once: true });
+    const unpublishBtn = document.getElementById('unpublish-recipe');
+    if (unpublishBtn) {
+      unpublishBtn.addEventListener('click', async () => {
+        try {
+          await recipeService.updateRecipeStatus(recipe.id, false);
+          unpublishBtn.textContent = 'Unpublished';
+          unpublishBtn.disabled = true;
+          setTimeout(() => (window.location.href = 'index.html'), 1000);
+        } catch (err) {
+          console.error('Unpublish error:', err);
+          unpublishBtn.textContent = 'Failed to Unpublish';
+        }
+      });
+    }
   };
 
   const filterAndRender = () => {
@@ -195,7 +170,7 @@ recipes.forEach(recipe => {
       });
     }
 
-    if (activeFilters.size > 0) {
+    if (activeFilters.size) {
       filtered = filtered.filter(r => {
         const without = r.Without || [];
         if (activeFilters.has('gluten-free') && !without.includes('NoGluten')) return false;
@@ -208,33 +183,25 @@ recipes.forEach(recipe => {
       });
     }
 
-    if (currentSort === 'name-asc') {
-      filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-    } else if (currentSort === 'name-desc') {
-      filtered.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
-    } else if (currentSort === 'most-liked') {
-        filtered.sort((a, b) => (b.likes || 0) - (a.likes || 0));
-      }
+    if (currentSort === 'name-asc') filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+    else if (currentSort === 'name-desc') filtered.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
+    else if (currentSort === 'most-liked') filtered.sort((a, b) => (b.likes || 0) - (a.likes || 0));
 
     recipesList.innerHTML = '';
     filtered.forEach(r => recipesList.appendChild(createCard(r)));
   };
 
-  searchInput?.addEventListener('input', (e) => {
+  searchInput?.addEventListener('input', e => {
     currentSearch = e.target.value;
     filterAndRender();
   });
 
-  filterButtons?.forEach(btn => {
+  filterButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       const filter = btn.dataset.filter;
-      if (activeFilters.has(filter)) {
-        activeFilters.delete(filter);
-        btn.classList.remove('bg-blue-600', 'text-white');
-      } else {
-        activeFilters.add(filter);
-        btn.classList.add('bg-blue-600', 'text-white');
-      }
+      btn.classList.toggle('bg-blue-600');
+      btn.classList.toggle('text-white');
+      activeFilters.has(filter) ? activeFilters.delete(filter) : activeFilters.add(filter);
       filterAndRender();
     });
   });
@@ -256,28 +223,18 @@ recipes.forEach(recipe => {
 
   const applyDynamicText = () => {
     const lang = localStorage.getItem('language') || 'en';
-  
-    // Update search input placeholder
     searchInput.placeholder = lang === 'fr' ? 'Rechercher des recettes...' : 'Search recipes...';
-  
-    // Update sort label
     const sortLabel = document.getElementById('sort-label');
-    if (sortLabel) {
-      sortLabel.textContent = lang === 'fr' ? 'Trier par :' : 'Sort by:';
-    }
-  
-    // Update sort options
-    document.querySelectorAll('#sort-recipes option').forEach(option => {
-      option.textContent = option.dataset[lang];
+    if (sortLabel) sortLabel.textContent = lang === 'fr' ? 'Trier par :' : 'Sort by:';
+
+    document.querySelectorAll('#sort-recipes option').forEach(opt => {
+      opt.textContent = opt.dataset[lang];
     });
-  
-    // Update filter buttons
     document.querySelectorAll('.filter-btn, #clear-filters').forEach(btn => {
       const text = btn.dataset[lang];
       if (text) btn.textContent = text;
     });
   };
-  
-  applyDynamicText(); // call it once on load
-  
+
+  applyDynamicText();
 });
