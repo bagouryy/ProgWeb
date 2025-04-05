@@ -84,24 +84,24 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const imageURL = document.getElementById('recipe-image').value.trim();
     const originalURL = document.getElementById('recipe-original-url').value.trim();
-    const without = [];
+    const Without = [];
     if (document.getElementById('gluten-free').checked) {
-      without.push('NoGluten');
+      Without.push('NoGluten');
     }
     if (document.getElementById('vegan').checked) {
-      without.push('Vegan');
+      Without.push('Vegan');
     }
     if (document.getElementById('vegetarian').checked) {
-      without.push('Vegetarian');
+      Without.push('Vegetarian');
     }
     if (document.getElementById('omnivore').checked) {
-      without.push('Omnivore');
+      Without.push('Omnivore');
     }
 
     const newRecipe = {
       author: user.username,
       name,
-      without,
+      Without,
       ingredients,
       steps,
       timers,
