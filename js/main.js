@@ -37,8 +37,8 @@ recipes.forEach(recipe => {
     const title = language === 'fr' && recipe.nameFR ? recipe.nameFR : recipe.name;
 
     const image = recipe.imageURL
-      ? `<img src="${recipe.imageURL}" alt="${title}" class="w-full h-48 object-cover rounded-t-xl">`
-      : '';
+  ? `<img src="${recipe.imageURL}" alt="${title}" class="w-full h-48 object-cover rounded-t-xl">`
+  : `<div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-t-xl text-gray-500 text-sm italic">No Image</div>`;
 
     console.log(user, recipe.liked);
 
