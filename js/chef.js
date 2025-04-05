@@ -91,6 +91,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (document.getElementById('vegan').checked) {
       without.push('Vegan');
     }
+    if (document.getElementById('vegetarian').checked) {
+      without.push('Vegetarian');
+    }
+    if (document.getElementById('omnivore').checked) {
+      without.push('Omnivore');
+    }
 
     const newRecipe = {
       author: user.username,

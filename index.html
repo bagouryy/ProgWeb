@@ -104,31 +104,25 @@
       </div>
 
       <!-- Filters -->
-      <div class="flex flex-wrap gap-2 items-center">
-        <button class="filter-btn bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
-                data-filter="gluten-free" data-en="Gluten Free" data-fr="Sans Gluten">
-          Gluten Free
-        </button>
-        <button class="filter-btn bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
-                data-filter="vegan" data-en="Vegan" data-fr="Végan">
-          Vegan
-        </button>
-        <button class="filter-btn bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
-                data-filter="translated" data-en="Translated" data-fr="Traduit">
-          Translated
-        </button>
-        <button class="filter-btn bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
-        data-filter="liked"
-        data-en="Liked"
-        data-fr="Aimés">
-  Liked
-</button>
-        <button id="clear-filters" data-en="Clear All" data-fr="Tout Effacer"
-                class="text-gray-600 hover:text-gray-900 text-sm font-medium ml-2 transition-colors duration-200">
-          Clear All
-        </button>
+      <div class="flex flex-wrap gap-2 mb-4">
+        <button class="filter-btn bg-white text-gray-700 hover:shadow-blue-300 hover:shadow-md border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
+                data-filter="gluten-free" data-en="Gluten Free" data-fr="Sans Gluten">Gluten-Free</button>
+        <button class="filter-btn bg-white text-gray-700 hover:shadow-blue-300 hover:shadow-md border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
+                data-filter="vegan" data-en="Vegan" data-fr="Végan">Vegan</button>
+        <button class="filter-btn bg-white text-gray-700 hover:shadow-blue-300 hover:shadow-md border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
+                data-filter="vegetarian" data-en="Vegetarian" data-fr="Végéterien">Vegetarian</button>
+        <button class="filter-btn bg-white text-gray-700 hover:shadow-blue-300 hover:shadow-md border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
+                data-filter="omnivore" data-en="Omnivore" data-fr="Omnivore">Omnivore</button>
+        <button class="filter-btn bg-white text-gray-700 hover:shadow-blue-300 hover:shadow-md border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
+                data-filter="translated" data-en="Translated" data-fr="Traduit">Translated</button>
+        <button class="filter-btn bg-white text-gray-700 hover:shadow-blue-300 hover:shadow-md border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
+                data-filter="liked"
+                data-en="Liked"
+                data-fr="Aimés">Liked</button>
+        <button id="clear-filters" class="bg-red-500 hover:bg-red-400 text-white px-3 py-1 rounded">Clear Filters</button>
       </div>
     </div>
+
 
     <!-- Recipe Cards -->
     <div id="recipes-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>

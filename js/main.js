@@ -48,7 +48,7 @@ recipes.forEach(recipe => {
       <p class="text-sm text-gray-600">Author: ${recipe.author || recipe.Author || 'Unknown'}</p>
       <p class="text-sm text-gray-600">Likes: <span class="likes-count">${recipe.likes || 0}</span></p>
       <button class="like-btn absolute bottom-4 right-4">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="${recipe.liked ? 'currentColor' : 'none'}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-6 h-6 transition duration-200">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="${recipe.liked ? 'red' : 'none'}" stroke="${recipe.liked ? 'red' : 'currentColor'}" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" class="w-6 h-6 transition duration-200">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6.01 4.01 4 6.5 4c1.74 0 3.41 1.01 4.5 2.09C12.09 5.01 13.76 4 15.5 4 17.99 4 20 6.01 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
       </button>
@@ -64,7 +64,8 @@ recipes.forEach(recipe => {
 
         card.querySelector('.likes-count').textContent = recipe.likes;
         const heartIcon = card.querySelector('.like-btn svg');
-        heartIcon.setAttribute('fill', recipe.liked ? 'currentColor' : 'none');
+        heartIcon.setAttribute('fill', recipe.liked ? 'red' : 'none');
+        heartIcon.setAttribute('stroke', recipe.liked ? 'red' : 'currentColor');
       } catch (err) {
         console.error('Error toggling like:', err);
       }
@@ -198,6 +199,8 @@ recipes.forEach(recipe => {
         const without = r.Without || [];
         if (activeFilters.has('gluten-free') && !without.includes('NoGluten')) return false;
         if (activeFilters.has('vegan') && !without.includes('Vegan')) return false;
+        if (activeFilters.has('vegetarian') && !without.includes('Vegetarian')) return false;
+        if (activeFilters.has('omnivore') && !without.includes('Omnivore')) return false;
         if (activeFilters.has('translated') && !r.nameFR) return false;
         if (activeFilters.has('liked') && !r.liked) return false;
         return true;
@@ -226,10 +229,10 @@ recipes.forEach(recipe => {
       const filter = btn.dataset.filter;
       if (activeFilters.has(filter)) {
         activeFilters.delete(filter);
-        btn.classList.remove('bg-primary-600', 'text-white');
+        btn.classList.remove('bg-blue-600', 'text-white');
       } else {
         activeFilters.add(filter);
-        btn.classList.add('bg-primary-600', 'text-white');
+        btn.classList.add('bg-blue-600', 'text-white');
       }
       filterAndRender();
     });
@@ -239,7 +242,7 @@ recipes.forEach(recipe => {
     activeFilters.clear();
     currentSearch = '';
     searchInput.value = '';
-    filterButtons.forEach(btn => btn.classList.remove('bg-primary-600', 'text-white'));
+    filterButtons.forEach(btn => btn.classList.remove('bg-blue-600', 'text-white'));
     filterAndRender();
   });
 
