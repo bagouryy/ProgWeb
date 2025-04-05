@@ -15,42 +15,40 @@
   <nav class="bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-20">
+        
+        <!-- Left: Logo + Links -->
         <div class="flex items-center">
-          <div class="flex-shrink-0">
-            <a href="index.html" class="text-white text-2xl font-bold tracking-tight">Recipe Manager</a>
-          </div>
-          <!-- Hidden by default on mobile -->
+          <a href="index.html" class="text-white text-2xl font-bold tracking-tight">Recipe Manager</a>
           <div class="hidden md:block">
-            <div id="nav-menu" class="ml-10 flex items-baseline space-x-4">
-              <!-- JS will populate nav links here -->
-            </div>
+            <div id="nav-menu" class="ml-10 flex items-baseline space-x-4"></div>
           </div>
         </div>
   
-        <!-- Mobile menu button -->
-        <div class="flex items-center gap-2 ml-auto">
-            <button id="language-toggle" class="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-medium">
-              EN
-            </button>
-            <button id="nav-toggle" class="text-white focus:outline-none md:hidden">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
+        <!-- Right: Language toggle and user info -->
+        <div class="flex items-center gap-4">
+          <!-- Language Toggle -->
+          <button id="language-toggle" class="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-medium">EN</button>
+  
+          <!-- User Info + Logout (Desktop) -->
+          <div class="hidden md:flex items-center gap-4">
+            <span id="user-info" class="text-white text-sm"></span>
+            <button id="logout" class="bg-blue-800 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">Logout</button>
           </div>
-        <!-- User & Lang Controls -->
-        <div class="hidden md:flex items-center gap-4">
-          <span id="user-info" class="text-white text-sm"></span>
-          <button id="logout" class="bg-blue-800 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">Logout</button>
+  
+          <!-- Mobile nav toggle -->
+          <button id="nav-toggle" class="text-white focus:outline-none md:hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
         </div>
       </div>
   
-      <!-- Mobile menu links -->
-      <div id="mobile-nav" class="md:hidden hidden pt-4 flex flex-col space-y-2">
-        <!-- JS will populate nav links here -->
-      </div>
+      <!-- Mobile menu -->
+      <div id="mobile-nav" class="md:hidden hidden pt-4 flex flex-col space-y-2"></div>
     </div>
   </nav>
+  
 
   <main class="max-w-7xl mx-auto py-10 px-4 sm:px-6 lg:px-8">
     <h1 id="admin-title" class="text-3xl font-bold text-gray-900 mb-6">Admin Dashboard</h1>

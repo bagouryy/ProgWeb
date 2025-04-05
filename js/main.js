@@ -38,18 +38,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       ? `<img src="${recipe.imageURL}" alt="${title}" class="w-full h-48 object-cover rounded-t-xl">`
       : `<div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-t-xl text-gray-500 text-sm italic">No Image</div>`;
 
-    card.innerHTML = `
+      card.innerHTML = `
       ${image}
       <h3 class="text-xl font-semibold mt-4">${title}</h3>
       <p class="text-sm text-gray-600">Author: ${recipe.author || recipe.Author || 'Unknown'}</p>
-      <p class="text-sm text-gray-600">Likes: <span class="likes-count">${recipe.likes || 0}</span></p>
       <p class="text-sm text-gray-600">Comments: <span class="comments-count">${recipe.comments?.length || 0}</span></p>
-      <button class="like-btn absolute bottom-4 right-4">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="${recipe.liked ? 'red' : 'none'}" stroke="${recipe.liked ? 'red' : 'currentColor'}" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6 transition duration-200">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6.01 4.01 4 6.5 4c1.74 0 3.41 1.01 4.5 2.09C12.09 5.01 13.76 4 15.5 4 17.99 4 20 6.01 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-        </svg>
-      </button>
+    
+      <div class="absolute bottom-4 right-4 flex items-center gap-1">
+        <button class="like-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="${recipe.liked ? 'red' : 'none'}" stroke="${recipe.liked ? 'red' : 'currentColor'}" viewBox="0 0 24 24" stroke-width="2" class="w-6 h-6 transition duration-200">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 6.01 4.01 4 6.5 4c1.74 0 3.41 1.01 4.5 2.09C12.09 5.01 13.76 4 15.5 4 17.99 4 20 6.01 20 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </button>
+        <span class="likes-count font-bold text-sm">${recipe.likes || 0}</span>
+      </div>
     `;
+    
 
     const likeButton = card.querySelector('.like-btn');
     likeButton.addEventListener('click', async (e) => {
