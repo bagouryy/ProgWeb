@@ -84,6 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const imageURL = document.getElementById('recipe-image').value.trim();
     const originalURL = document.getElementById('recipe-original-url').value.trim();
+    const totalTime = parseInt(document.getElementById('total-time').value.trim(), 10);
     const Without = [];
     if (document.getElementById('gluten-free').checked) {
       Without.push('NoGluten');
@@ -107,6 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       timers,
       imageURL,
       originalURL,
+      totalTime, // Add total time to the recipe object
       published: false
     };
 

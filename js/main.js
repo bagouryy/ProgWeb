@@ -83,7 +83,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     modal.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
 
     const modalContent = document.createElement('div');
-    modalContent.className = 'bg-white rounded-lg shadow-lg p-6 max-w-4xl w-full max-h-full overflow-y-auto';
+    modalContent.className = `relative bg-white rounded-2xl shadow-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto animate-fade-in`;
 
     const lang = localStorage.getItem('language') || 'en';
     const title = lang === 'fr' && recipe.nameFR ? recipe.nameFR : recipe.name || 'Untitled';
@@ -102,28 +102,50 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const comments = recipe.comments?.map(comment => `<p><strong>${comment.name}:</strong> ${comment.text}</p>`).join('') || '<p>No comments yet.</p>';
 
+    const totalTime = recipe.totalTime ? `<p class="text-sm text-gray-600">Total Time: ${recipe.totalTime} minutes</p>` : '';
+
     modalContent.innerHTML = `
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold">${title}</h2>
-        <button id="close-modal-top" class="text-gray-500 hover:text-red-500 text-2xl font-bold">&times;</button>
-      </div>
-      ${image}
-      <p class="text-sm text-gray-600 mb-4">Author: ${recipe.author || recipe.Author || 'Unknown'}</p>
-      <h3 class="text-lg font-semibold mb-2">Ingredients:</h3>
-      <ul class="list-disc list-inside mb-4">${ingredients}</ul>
-      <h3 class="text-lg font-semibold mb-2">Steps:</h3>
-      <ol class="list-decimal list-inside">${steps}</ol>
-      <p class="text-sm text-gray-600">Likes: ${recipe.likes || 0}</p>
-      <h3 class="text-lg font-semibold mb-2">Comments:</h3>
-      <div id="comments-section" class="mb-4">${comments}</div>
-      <form id="comment-form" class="space-y-2">
-        <input type="text" id="comment-name" placeholder="Your name" class="w-full p-2 border rounded" required />
-        <textarea id="comment-text" placeholder="Your comment" class="w-full p-2 border rounded" rows="3" required></textarea>
-        <button type="submit" class="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded">Submit Comment</button>
-      </form>
-      ${userService.isAdmin(user) ? `<button id="unpublish-recipe" class="mt-4 bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded">Unpublish</button>` : ''}
-      <button id="close-modal" class="mt-4 bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded">Close</button>
-    `;
+  <button id="close-modal-top" class="absolute top-4 right-4 text-gray-400 hover:text-red-500 transition">
+    &times;
+  </button>
+
+  ${image}
+  <h2 class="text-3xl font-bold mb-2">${title}</h2>
+  <p class="text-sm text-gray-500 mb-4">Author: ${recipe.author || recipe.Author || 'Unknown'}</p>
+  ${totalTime}
+
+  <div class="space-y-4">
+    <div>
+      <h3 class="text-lg font-semibold mb-2 border-b pb-1">Ingredients</h3>
+      <ul class="list-disc list-inside text-gray-700">${ingredients}</ul>
+    </div>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-2 border-b pb-1">Steps</h3>
+      <ol class="list-decimal list-inside text-gray-700">${steps}</ol>
+    </div>
+
+    <p class="text-sm text-gray-600">Likes: <strong>${recipe.likes || 0}</strong></p>
+
+    <div>
+      <h3 class="text-lg font-semibold mb-2 border-b pb-1">Comments</h3>
+      <div id="comments-section" class="text-sm space-y-1">${comments}</div>
+    </div>
+
+    <form id="comment-form" class="space-y-2">
+      <input type="text" id="comment-name" placeholder="Your name" class="w-full p-2 border rounded" required />
+      <textarea id="comment-text" placeholder="Your comment" class="w-full p-2 border rounded" rows="3" required></textarea>
+      <button type="submit" class="bg-green-500 hover:bg-green-400 text-white px-4 py-2 rounded w-full">Submit Comment</button>
+    </form>
+
+    ${userService.isAdmin(user) ? `
+      <button id="unpublish-recipe" class="w-full bg-yellow-500 hover:bg-yellow-400 text-white px-4 py-2 rounded">Unpublish</button>` : ''
+    }
+
+    <button id="close-modal" class="w-full bg-red-500 hover:bg-red-400 text-white px-4 py-2 rounded">Close</button>
+  </div>
+`;
+
 
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
