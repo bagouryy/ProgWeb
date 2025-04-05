@@ -25,10 +25,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   await recipeService.ensureRecipesLoaded();
   recipes = await recipeService.getAllRecipes();
 
-  const likedPosts = user?.likedPosts || [];
-  recipes.forEach(recipe => {
-    recipe.liked = likedPosts.includes(recipe.id);
-  });
+  const fullUser = await userService.getUserByUsername(user.username);
+recipes.forEach(recipe => {
+  recipe.liked = fullUser?.likedPosts?.includes(recipe.id);
+});
 
   const createCard = (recipe) => {
     const card = document.createElement('div');
@@ -199,6 +199,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (activeFilters.has('gluten-free') && !without.includes('NoGluten')) return false;
         if (activeFilters.has('vegan') && !without.includes('Vegan')) return false;
         if (activeFilters.has('translated') && !r.nameFR) return false;
+        if (activeFilters.has('liked') && !r.liked) return false;
         return true;
       });
     }
@@ -207,7 +208,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       filtered.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
     } else if (currentSort === 'name-desc') {
       filtered.sort((a, b) => (b.name || '').localeCompare(a.name || ''));
-    }
+    } else if (currentSort === 'most-liked') {
+        filtered.sort((a, b) => (b.likes || 0) - (a.likes || 0));
+      }
 
     recipesList.innerHTML = '';
     filtered.forEach(r => recipesList.appendChild(createCard(r)));
@@ -246,4 +249,31 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   filterAndRender();
+
+  const applyDynamicText = () => {
+    const lang = localStorage.getItem('language') || 'en';
+  
+    // Update search input placeholder
+    searchInput.placeholder = lang === 'fr' ? 'Rechercher des recettes...' : 'Search recipes...';
+  
+    // Update sort label
+    const sortLabel = document.getElementById('sort-label');
+    if (sortLabel) {
+      sortLabel.textContent = lang === 'fr' ? 'Trier par :' : 'Sort by:';
+    }
+  
+    // Update sort options
+    document.querySelectorAll('#sort-recipes option').forEach(option => {
+      option.textContent = option.dataset[lang];
+    });
+  
+    // Update filter buttons
+    document.querySelectorAll('.filter-btn, #clear-filters').forEach(btn => {
+      const text = btn.dataset[lang];
+      if (text) btn.textContent = text;
+    });
+  };
+  
+  applyDynamicText(); // call it once on load
+  
 });

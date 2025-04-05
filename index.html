@@ -1,146 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recipe Manager</title>
-    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script type="module" src="js/main.js"></script>
-    <style>
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes fadeOut {
-            from { opacity: 1; transform: translateY(0); }
-            to { opacity: 0; transform: translateY(10px); }
-        }
-        .animate-fade-in {
-            animation: fadeIn 0.3s ease-out forwards;
-        }
-        .animate-fade-out {
-            animation: fadeOut 0.2s ease-out forwards;
-        }
-        .shadow-card {
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
-            transition: box-shadow 0.3s ease-in-out;
-        }
-        .shadow-card-hover {
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-        }
-        .recipe-card {
-            transition: all 0.3s ease;
-        }
-        .recipe-card:hover {
-            transform: translateY(-5px);
-        }
-        .like-btn svg {
-            transition: fill 0.3s ease;
-        }
-        
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Recipe Manager</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script type="module" src="js/main.js"></script>
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeOut {
+      from { opacity: 1; transform: translateY(0); }
+      to { opacity: 0; transform: translateY(10px); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.3s ease-out forwards;
+    }
+    .animate-fade-out {
+      animation: fadeOut 0.2s ease-out forwards;
+    }
+    .shadow-card {
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1), 0 1px 2px rgba(0,0,0,0.06);
+      transition: box-shadow 0.3s ease-in-out;
+    }
+    .shadow-card-hover {
+      box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+    }
+    .recipe-card {
+      transition: all 0.3s ease;
+    }
+    .recipe-card:hover {
+      transform: translateY(-5px);
+    }
+    .like-btn svg {
+      transition: fill 0.3s ease;
+    }
+  </style>
 </head>
 <body class="bg-gradient-to-br from-gray-50 to-gray-100 min-h-screen">
-    <!-- Message Display -->
-    <div id="message" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-lg z-50"></div>
+  <div id="message" class="hidden fixed top-4 left-1/2 transform -translate-x-1/2 p-4 rounded-lg shadow-lg z-50"></div>
 
-    <!-- Shared navigation block -->
-<nav class="bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg">
+  <!-- Navigation -->
+  <nav class="bg-gradient-to-r from-blue-600 to-blue-700 shadow-lg">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       <div class="flex items-center justify-between h-20">
         <div class="flex items-center">
           <div class="flex-shrink-0">
             <a href="index.html" class="text-white text-2xl font-bold tracking-tight">Recipe Manager</a>
           </div>
-          <!-- Hidden by default on mobile -->
           <div class="hidden md:block">
-            <div id="nav-menu" class="ml-10 flex items-baseline space-x-4">
-              <!-- JS will populate nav links here -->
-            </div>
+            <div id="nav-menu" class="ml-10 flex items-baseline space-x-4"></div>
           </div>
         </div>
-  
-        <!-- Mobile menu button -->
+
         <div class="flex items-center gap-2 ml-auto">
-            <button id="language-toggle" class="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-medium">
-              EN
-            </button>
-            <button id="nav-toggle" class="text-white focus:outline-none md:hidden">
-              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-        <!-- User & Lang Controls -->
+          <button id="language-toggle" class="bg-blue-500 hover:bg-blue-400 text-white px-4 py-2 rounded-lg text-sm font-medium">EN</button>
+          <button id="nav-toggle" class="text-white focus:outline-none md:hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+        </div>
+
         <div class="hidden md:flex items-center gap-4">
           <span id="user-info" class="text-white text-sm"></span>
           <button id="logout" class="bg-blue-800 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium">Logout</button>
         </div>
       </div>
-  
-      <!-- Mobile menu links -->
-      <div id="mobile-nav" class="md:hidden hidden pt-4 flex flex-col space-y-2">
-        <!-- JS will populate nav links here -->
-      </div>
+
+      <div id="mobile-nav" class="md:hidden hidden pt-4 flex flex-col space-y-2"></div>
     </div>
   </nav>
-  
 
-    <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        <!-- Filters and Search -->
-        <div class="mb-8 space-y-4">
-            <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
-                <div class="relative flex-grow max-w-lg">
-                    <input type="text" 
-                           id="search" 
-                           placeholder="Search recipes..." 
-                           class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                        <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                </div>
-                <div class="flex items-center gap-2">
-                    <label for="sort-recipes" class="text-sm font-medium text-gray-700">Sort by:</label>
-                    <select id="sort-recipes" 
-                            class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
-                        <option value="newest">Newest First</option>
-                        <option value="oldest">Oldest First</option>
-                        <option value="name-asc">Name A-Z</option>
-                        <option value="name-desc">Name Z-A</option>
-                    </select>
-                </div>
-            </div>
-            <div class="flex flex-wrap gap-2 items-center">
-                <button class="filter-btn bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
-                        data-filter="gluten-free">
-                    Gluten Free
-                </button>
-                <button class="filter-btn bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
-                        data-filter="vegan">
-                    Vegan
-                </button>
-                <button class="filter-btn bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
-                        data-filter="translated">
-                    Translated
-                </button>
-                <button id="clear-filters"
-                        class="text-gray-600 hover:text-gray-900 text-sm font-medium ml-2 transition-colors duration-200">
-                    Clear All
-                </button>
-            </div>
+  <!-- Main Content -->
+  <main class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+    <div class="mb-8 space-y-4">
+      <!-- Search + Sort -->
+      <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div class="relative flex-grow max-w-lg">
+          <input type="text"
+                 id="search"
+                 placeholder="Search recipes..."
+                 class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+          <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+            </svg>
+          </div>
         </div>
-
-        <!-- Recipe Grid -->
-        <div id="recipes-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <!-- Recipe cards will be injected here -->
+        <div class="flex items-center gap-2">
+          <label for="sort-recipes" id="sort-label" class="text-sm font-medium text-gray-700">Sort by:</label>
+          <select id="sort-recipes" class="bg-white border border-gray-300 text-gray-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 p-2.5">
+            <option value="newest" data-en="Newest First" data-fr="Plus récentes">Newest First</option>
+            <option value="oldest" data-en="Oldest First" data-fr="Plus anciennes">Oldest First</option>
+            <option value="name-asc" data-en="Name A-Z" data-fr="Nom A-Z">Name A-Z</option>
+            <option value="name-desc" data-en="Name Z-A" data-fr="Nom Z-A">Name Z-A</option>
+            <option value="most-liked" data-en="Most Liked" data-fr="Les plus aimés">Most Liked</option>
+          </select>
         </div>
-    </main>
+      </div>
 
-    <footer class="bg-blue-700 text-white py-4 text-center">
-        <p>&copy; 2025 Recipe Manager. All rights reserved.</p>
-    </footer>
+      <!-- Filters -->
+      <div class="flex flex-wrap gap-2 items-center">
+        <button class="filter-btn bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
+                data-filter="gluten-free" data-en="Gluten Free" data-fr="Sans Gluten">
+          Gluten Free
+        </button>
+        <button class="filter-btn bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
+                data-filter="vegan" data-en="Vegan" data-fr="Végan">
+          Vegan
+        </button>
+        <button class="filter-btn bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
+                data-filter="translated" data-en="Translated" data-fr="Traduit">
+          Translated
+        </button>
+        <button class="filter-btn bg-white text-gray-700 hover:bg-gray-50 border border-gray-300 font-medium rounded-lg text-sm px-4 py-2 transition-colors duration-200"
+        data-filter="liked"
+        data-en="Liked"
+        data-fr="Aimés">
+  Liked
+</button>
+        <button id="clear-filters" data-en="Clear All" data-fr="Tout Effacer"
+                class="text-gray-600 hover:text-gray-900 text-sm font-medium ml-2 transition-colors duration-200">
+          Clear All
+        </button>
+      </div>
+    </div>
+
+    <!-- Recipe Cards -->
+    <div id="recipes-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-blue-700 text-white py-4 text-center">
+    <p>&copy; 2025 Recipe Manager. All rights reserved.</p>
+  </footer>
 </body>
 </html>

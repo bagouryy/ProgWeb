@@ -42,6 +42,7 @@ class RecipeService {
 
     async updateRecipeStatus(id, published) {
       const recipe = await this.getRecipeById(id);
+      console.log('Updating recipe status:', recipe);
       if (recipe) {
         recipe.published = published;
         await this.updateRecipe(recipe);

@@ -266,7 +266,13 @@
     ],
     "imageURL": "http://upload.wikimedia.org/wikipedia/commons/c/c7/Spinach_pizza.jpg",
     "published": true,
-    "likes": 0
+    "likes": 1,
+    "comments": [
+      {
+        "name": "fs",
+        "text": "fs"
+      }
+    ]
   },
   {
     "id": "5",
@@ -331,7 +337,7 @@
     ],
     "imageURL": "http://elanaspantry.com/wp-content/uploads/2008/10/acorn_squash_with_cranberry.jpg",
     "originalURL": "",
-    "published": false,
+    "published": true,
     "likes": 1
   },
   {
@@ -562,7 +568,7 @@
     ],
     "imageURL": "http://www.canadianliving.com/img/photos/biz/blueberry-oatmeal-squares5801359401371.jpg",
     "originalURL": "http://www.canadianliving.com/food/blueberry_oatmeal_squares.php",
-    "published": false,
+    "published": true,
     "likes": 1,
     "comments": [
       "i dont know weird"
@@ -668,26 +674,135 @@
     ]
   },
   {
-    "id": "10",
     "author": "admin",
-    "name": "test",
-    "without": [],
+    "name": "Test",
+    "without": [
+      "NoGluten",
+      "Vegan"
+    ],
     "ingredients": [
       {
-        "quantity": "faf",
-        "name": "fa a",
-        "type": "f"
+        "quantity": "test",
+        "name": "1 2",
+        "type": "3"
       }
     ],
     "steps": [
-      "test"
+      "412",
+      "tes"
     ],
     "timers": [
-      1
+      0,
+      223
     ],
     "imageURL": "",
     "originalURL": "",
     "published": true,
-    "likes": 0
+    "id": "10",
+    "comments": [
+      {
+        "name": "comce",
+        "text": "ce"
+      }
+    ]
+  },
+  {
+    "id": "12",
+    "author": "admin",
+    "name": "testing",
+    "without": [
+      "NoGluten"
+    ],
+    "ingredients": [
+      {
+        "quantity": "1",
+        "name": "test",
+        "type": "halal"
+      }
+    ],
+    "steps": [
+      "do this",
+      "done"
+    ],
+    "timers": [
+      2,
+      0
+    ],
+    "imageURL": "",
+    "originalURL": "",
+    "published": true
+  },
+  {
+    "author": "admin",
+    "name": "hi",
+    "without": [
+      "NoGluten"
+    ],
+    "ingredients": [
+      {
+        "quantity": "hi",
+        "name": "",
+        "type": "hi"
+      }
+    ],
+    "steps": [
+      "hi"
+    ],
+    "timers": [
+      0
+    ],
+    "imageURL": "",
+    "originalURL": "",
+    "published": true,
+    "id": "13"
+  },
+  {
+    "author": "admin",
+    "name": "adding",
+    "without": [
+      "NoGluten"
+    ],
+    "ingredients": [
+      {
+        "quantity": "adding",
+        "name": "",
+        "type": "adding"
+      }
+    ],
+    "steps": [
+      "adding"
+    ],
+    "timers": [
+      0
+    ],
+    "imageURL": "",
+    "originalURL": "",
+    "published": false,
+    "id": 14
+  },
+  {
+    "author": "admin",
+    "name": "feafeca",
+    "without": [
+      "NoGluten",
+      "Vegan"
+    ],
+    "ingredients": [
+      {
+        "quantity": "fafea",
+        "name": "",
+        "type": "fafea"
+      }
+    ],
+    "steps": [
+      "feafea"
+    ],
+    "timers": [
+      0
+    ],
+    "imageURL": "",
+    "originalURL": "",
+    "published": true,
+    "id": "15"
   }
 ]

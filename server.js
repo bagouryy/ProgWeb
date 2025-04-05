@@ -50,7 +50,12 @@ app.post('/api/recipes', (req, res) => {
       return res.status(500).json({ error: 'Invalid JSON format in recipes.json' });
     }
 
+    // Auto-increment ID
+    const maxId = recipes.reduce((max, recipe) => Math.max(max, recipe.id || 0), 0);
+    newRecipe.id = String(maxId + 1);
+
     recipes.push(newRecipe);
+
     fs.writeFile(recipesFile, JSON.stringify(recipes, null, 2), err => {
       if (err) return res.status(500).json({ error: 'Failed to write to recipes.json' });
       res.status(201).json(newRecipe);
@@ -183,6 +188,39 @@ app.post('/api/users/:username/likes', (req, res) => {
   writeJsonFile(recipesFile, recipes);
 
   res.json({ likedPosts: user.likedPosts, recipe });
+});
+
+app.post('/api/recipes/:id/comment', (req, res) => {
+  const { id } = req.params;
+  const { comment } = req.body;
+
+  if (!comment) {
+    return res.status(400).json({ error: 'Comment is required' });
+  }
+
+  fs.readFile(recipesFile, 'utf8', (err, data) => {
+    if (err) return res.status(500).json({ error: 'Failed to read recipes.json' });
+
+    let recipes = [];
+    try {
+      recipes = JSON.parse(data);
+    } catch (parseErr) {
+      return res.status(500).json({ error: 'Invalid JSON format in recipes.json' });
+    }
+
+    const recipe = recipes.find(r => r.id === id);
+    if (!recipe) {
+      return res.status(404).json({ error: 'Recipe not found' });
+    }
+
+    recipe.comments = recipe.comments || [];
+    recipe.comments.push(comment);
+
+    fs.writeFile(recipesFile, JSON.stringify(recipes, null, 2), err => {
+      if (err) return res.status(500).json({ error: 'Failed to write to recipes.json' });
+      res.status(200).json(recipe);
+    });
+  });
 });
 
 
