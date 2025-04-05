@@ -4,7 +4,12 @@ module.exports = {
   theme: {
     extend: {
       screens: {
-        'xs': '480px', // Add extra small screen size for better phone compatibility
+        'xs': '480px', // Extra small screen size for better phone compatibility
+        'sm': '640px',
+        'md': '768px',
+        'lg': '1024px',
+        'xl': '1280px',
+        '2xl': '1536px',
       },
       colors: {
         primary: {

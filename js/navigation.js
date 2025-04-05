@@ -8,26 +8,43 @@ const Navigation = {
     const languageToggle = document.getElementById(languageToggleId);
 
     const updateNav = async () => {
-        const user = userService.getLoggedInUser();
-        if (!user) {
-          window.location.href = 'login.html';
-          return;
-        }
-      
-        userInfo.textContent = user.username;
-      
-        const lang = localStorage.getItem('language') || 'en';
-        const t = (en, fr) => lang === 'fr' ? fr : en;
-      
-        navMenu.innerHTML = `
+      const user = userService.getLoggedInUser();
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      userInfo.textContent = user.username;
+
+      const lang = localStorage.getItem('language') || 'en';
+      const t = (en, fr) => lang === 'fr' ? fr : en;
+
+      navMenu.innerHTML = `
+        <div class="md:hidden">
+          <button id="nav-toggle" class="bg-blue-600 text-white px-4 py-2 rounded">Menu</button>
+          <div id="nav-links" class="hidden flex flex-col space-y-2 mt-2">
+            <a href="index.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Home', 'Accueil')}</a>
+            ${userService.isAdmin() ? `<a href="admin.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Admin', 'Admin')}</a>` : ''}
+            ${userService.isChef() ? `<a href="chef.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Submit Recipe', 'Soumettre Recette')}</a>` : ''}
+            ${userService.isTranslator() ? `<a href="translate.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Translate', 'Traduire')}</a>` : ''}
+          </div>
+        </div>
+        <div class="hidden md:flex flex-row space-x-4">
           <a href="index.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Home', 'Accueil')}</a>
           ${userService.isAdmin() ? `<a href="admin.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Admin', 'Admin')}</a>` : ''}
           ${userService.isChef() ? `<a href="chef.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Submit Recipe', 'Soumettre Recette')}</a>` : ''}
           ${userService.isTranslator() ? `<a href="translate.html" class="text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium">${t('Translate', 'Traduire')}</a>` : ''}
-        `;
-      
-        // ✅ Fix: Highlight only after navMenu is populated
-        highlightCurrentPage();
+        </div>
+      `;
+
+      const navToggle = document.getElementById('nav-toggle');
+      const navLinks = document.getElementById('nav-links');
+
+      navToggle?.addEventListener('click', () => {
+        navLinks.classList.toggle('hidden');
+      });
+
+      highlightCurrentPage();
     };
 
     const highlightCurrentPage = () => {
