@@ -34,10 +34,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     card.className = 'bg-white rounded-xl shadow-card p-4 hover:shadow-card-hover transition duration-200 relative';
 
     const title = language === 'fr' && recipe.nameFR ? recipe.nameFR : recipe.name;
-    const image = recipe.imageURL
-      ? `<img src="${recipe.imageURL}" alt="${title}" class="w-full h-48 object-cover rounded-t-xl">`
-      : `<div class="w-full h-48 bg-gray-200 flex items-center justify-center rounded-t-xl text-gray-500 text-sm italic">No Image</div>`;
-
+    const image = `
+  <img 
+    src="${recipe.imageURL || '/data/no-image.jpg'}" 
+    alt="${title}" 
+    class="w-full h-48 object-cover rounded-t-xl" 
+    onerror="this.onerror=null; this.src='/data/no-image.jpg'; this.classList.add('bg-gray-100');"
+/>
+`;
       card.innerHTML = `
       ${image}
       <h3 class="text-xl font-semibold mt-4">${title}</h3>
@@ -149,6 +153,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     modal.appendChild(modalContent);
     document.body.appendChild(modal);
+
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        modal.remove();
+        document.removeEventListener('keydown', handleEscape);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    
 
     document.getElementById('close-modal').addEventListener('click', () => modal.remove());
     document.getElementById('close-modal-top').addEventListener('click', () => modal.remove());

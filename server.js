@@ -2,9 +2,17 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import formidable from 'formidable';
 
 const app = express();
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// Ensure the uploads directory exists
+const uploadsDir = path.join(__dirname, 'uploads');
+if (!fs.existsSync(uploadsDir)) {
+  fs.mkdirSync(uploadsDir);
+  console.log(`✅ Created uploads directory at ${uploadsDir}`);
+}
 
 app.use(express.static(__dirname));
 app.use(express.json());
@@ -223,7 +231,25 @@ app.post('/api/recipes/:id/comment', (req, res) => {
   });
 });
 
+// Endpoint to handle image uploads
+app.post('/api/upload', (req, res) => {
+  const form = formidable({ uploadDir: path.join(__dirname, 'uploads'), keepExtensions: true });
 
+  form.parse(req, (err, fields, files) => {
+    if (err) {
+      console.error('Error parsing form:', err);
+      return res.status(500).json({ error: 'Failed to upload image' });
+    }
+
+    const file = files?.image;
+    if (!file || !file.filepath) {
+      return res.status(400).json({ error: 'No valid image file provided' });
+    }
+
+    const imageUrl = `/uploads/${path.basename(file.filepath)}`;
+    res.status(200).json({ imageUrl });
+  });
+});
 
 const PORT = 3000;
 app.listen(PORT, () => {

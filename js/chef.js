@@ -121,4 +121,36 @@ document.addEventListener('DOMContentLoaded', async () => {
       alert(language === 'en' ? 'Error saving recipe.' : 'Erreur lors de la sauvegarde.');
     }
   });
+
+  const handleImageUpload = async (file) => {
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to upload image');
+      }
+
+      const data = await response.json();
+      return data.imageUrl; // Return the uploaded image URL
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      alert('Failed to upload image. Please try again.');
+    }
+  };
+
+  document.getElementById('image-upload').addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const imageUrl = await handleImageUpload(file);
+      if (imageUrl) {
+        document.getElementById('recipe-image').value = imageUrl; // Set the uploaded image URL in the input field
+      }
+    }
+  });
 });
