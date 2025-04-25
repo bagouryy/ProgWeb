@@ -19,10 +19,10 @@
     "username": "chefjoe",
     "password": "joepass",
     "roles": [
-      "Chef",
-      "Traducteur"
+      "Chef"
     ],
-    "requestedRole": null
+    "requestedRole": null,
+    "likedPosts": []
   },
   {
     "username": "translatorjane",

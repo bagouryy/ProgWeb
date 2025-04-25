@@ -24,6 +24,7 @@ const Navigation = {
         ${userService.isAdmin() ? `<a href="admin.html" class="${linkClass}">${t('Admin', 'Admin')}</a>` : ''}
         ${userService.isChef() ? `<a href="chef.html" class="${linkClass}">${t('Submit Recipe', 'Soumettre Recette')}</a>` : ''}
         ${userService.isTranslator() ? `<a href="translate.html" class="${linkClass}">${t('Translate', 'Traduire')}</a>` : ''}
+        ${userService.isChef() && !userService.isTranslator() ? `<a href="myrecipes.html" class="${linkClass}">${t('My Recipes', 'Mes Recettes')}</a>` : ''}
         `;
 
       navMenu.innerHTML = links;

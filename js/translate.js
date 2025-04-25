@@ -32,6 +32,11 @@ function isPartiallyTranslated(recipe) {
   return recipe.nameFR || (recipe.ingredientsFR?.length > 0) || (recipe.stepsFR?.length > 0);
 }
 
+const isAuthor = (recipe, user) => {
+  return recipe.author === user.username;
+};
+
+
 document.addEventListener('DOMContentLoaded', async () => {
   await userService.loadUsers();
   const user = userService.getLoggedInUser();
@@ -99,10 +104,38 @@ document.addEventListener('DOMContentLoaded', async () => {
     const enFields = fieldset('🇬🇧 English', 'name', 'ingredients', 'steps');
     const frFields = fieldset('🇫🇷 French', 'nameFR', 'ingredientsFR', 'stepsFR');
 
+    const userIsAuthor = isAuthor(recipe, user);
+
+// Disable only non-empty translated fields if user is not author
+if (!userIsAuthor) {
+  // Lock English fields if already filled
+  if (recipe.name) enFields.name.disabled = true;
+  if (recipe.ingredients?.length) enFields.ingredients.disabled = true;
+  if (recipe.steps?.length) enFields.steps.disabled = true;
+
+  // Lock French fields if already filled
+  if (recipe.nameFR) frFields.name.disabled = true;
+  if (recipe.ingredientsFR?.length) frFields.ingredients.disabled = true;
+  if (recipe.stepsFR?.length) frFields.steps.disabled = true;
+}
+
+
+
     const saveBtn = document.createElement('button');
     saveBtn.type = 'button';
     saveBtn.textContent = '💾 Save';
     saveBtn.className = 'bg-blue-600 hover:bg-blue-500 text-white font-semibold px-4 py-2 rounded';
+
+  const englishLocked = recipe.name && recipe.ingredients?.length && recipe.steps?.length;
+  const frenchLocked = recipe.nameFR && recipe.ingredientsFR?.length && recipe.stepsFR?.length;
+  
+  if (!userIsAuthor && englishLocked && frenchLocked) {
+    saveBtn.disabled = true;
+    saveBtn.classList.add('opacity-50', 'cursor-not-allowed');
+    saveBtn.title = "No editable fields. You can only translate or modify your own recipes.";
+  }
+  
+
 
     autoSyncCheckbox.addEventListener('change', () => {
       if (autoSyncCheckbox.checked) {
