@@ -1,4 +1,3 @@
-// js/translate.js
 import recipeService from './recipeService.js';
 import userService from './userService.js';
 import Navigation from './navigation.js';

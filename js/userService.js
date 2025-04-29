@@ -1,4 +1,3 @@
-// js/userService.js
 class UserService {
     constructor() {
       this.users = [];

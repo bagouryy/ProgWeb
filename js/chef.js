@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       timers,
       imageURL,
       originalURL,
-      totalTime, // Add total time to the recipe object
+      totalTime,
       published: false
     };
 
