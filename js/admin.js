@@ -120,7 +120,8 @@ document.addEventListener('DOMContentLoaded', async () => {
           .map(cb => cb.getAttribute('data-role'));
   
         user.roles = newRoles;
-        user.requestedRoles = user.requestedRoles?.filter(r => !newRoles.includes(r));
+        user.requestedRoles = user.requestedRoles?.filter(r => !newRoles.includes(r)) 
+      ;
   
         // Save to backend
         button.disabled = true;
